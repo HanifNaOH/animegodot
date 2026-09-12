@@ -34,13 +34,13 @@ var timeline := context.timeline()
 timeline \\
     .to($Title, {"modulate:a": 1.0, "duration": 0.4}) \\
     .to($Button, {"position:y": 240.0, "duration": 0.6}, "<+=0.1") \\
-    .call(_intro_finished) \\
+    .invoke(_intro_finished) \\
     .play()
 ```
 
 ## Milestones
 
-### 1. Runtime foundation
+### 1. Runtime foundation (complete)
 
 Create the runtime directory and implement:
 
@@ -65,13 +65,13 @@ Validation:
 - Run it with the configured Godot 4.7.1 executable in headless mode.
 - Verify property changes and callback execution.
 
-### 2. Anime.js-style convenience API
+### 2. Anime.js-style convenience API (complete)
 
 Add:
 
 - `Anime.to(target, properties)`.
 - `Anime.from(target, properties)`.
-- `Anime.set(target, properties)`.
+- `Anime.set_value(target, properties)` (`set` is reserved by Godot's `Object` API).
 - Arrays of targets.
 - `repeat` and `yoyo`.
 - Staggered starts for target arrays.
@@ -79,7 +79,9 @@ Add:
 
 Keep the options dictionary separate from animated properties so reserved keys cannot be written to the target.
 
-### 3. Timeline system
+Phase 2 currently supports easing, callbacks, repeats, yoyo playback, target arrays, and staggered starts.
+
+### 3. Timeline system (complete)
 
 Implement `anime_timeline.gd` with:
 
@@ -91,9 +93,11 @@ Implement `anime_timeline.gd` with:
 - Pause, resume, reverse, restart, seek, and time scale.
 - Timeline completion and interruption signals.
 
+Implemented with `AnimeTimeline`; use `invoke()` for callbacks because Godot reserves `Object.call()`.
+
 Use native Tween chains where possible. Add a small scheduler only where labels and relative positions require it.
 
-### 4. Conflict and lifecycle handling
+### 4. Conflict and lifecycle handling (complete)
 
 Add a central registry for active animations:
 
@@ -103,9 +107,11 @@ Add a central registry for active animations:
 - Kill animations safely when a target is freed.
 - Ensure callbacks are not called after cleanup.
 
-Add focused tests for overlapping position, rotation, and alpha animations.
+Focused tests cover overlapping position, rotation, and alpha animations, plus target and context cleanup.
 
-### 5. Godot-native advanced features
+Implemented with a shared registry and independently cancellable property tracks. `OVERWRITE_AUTO` is the default; use `OVERWRITE_NONE` to allow conflicts or `OVERWRITE_ALL` to cancel every active track on a target.
+
+### 5. Godot-native advanced features (complete)
 
 Implement features that map naturally to Godot:
 
@@ -116,7 +122,9 @@ Implement features that map naturally to Godot:
 - Spring and bezier plugins where they add clear value.
 - Conversion helpers for creating or controlling `AnimationPlayer` animations.
 
-### 6. Editor integration
+Implemented APIs include `Anime.motion_path()`, `Anime.interpolate()`, `Anime.bezier()`, `Anime.spring()`, `Anime.animation_from_properties()`, and `Anime.add_animation()`. Shader uniforms use paths such as `material:shader_parameter/glow`.
+
+### 6. Editor integration (complete)
 
 Extend the existing `EditorPlugin` only after the runtime is stable:
 
@@ -126,9 +134,9 @@ Extend the existing `EditorPlugin` only after the runtime is stable:
 - Create reusable animation `Resource` files.
 - Provide an optional bridge to `AnimationPlayer`.
 
-Do not make the editor dock a dependency of runtime playback.
+Implemented with an editor dock that follows the current selection, previews `AnimationPlayer` clips, supports pause/reverse/stop/scrubbing, reports active runtime registry entries, and saves the selected clip as a reusable `.tres` resource. Runtime playback does not depend on the dock.
 
-### 7. Documentation and release
+### 7. Documentation and release (complete)
 
 Add:
 
@@ -137,6 +145,8 @@ Add:
 - Migration notes explaining when to use native Tween, AnimationPlayer, or AnimeGodot.
 - Changelog and semantic versioning.
 - A minimal example project or demo scene.
+
+Implemented with [README.md](../README.md), [CHANGELOG.md](../CHANGELOG.md), the GDVM to-do example guide, API examples, migration guidance in the README, and the runnable `examples/todo_list/todo_list.tscn` demo.
 
 ## Suggested Directory Layout
 

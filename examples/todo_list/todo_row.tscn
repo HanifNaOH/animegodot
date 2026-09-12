@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://examples/todo_list/todo_row.gd" id="1_row"]
+
+[node name="TodoRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 54)
+offset_right = 640.0
+offset_bottom = 54.0
+script = ExtResource("1_row")
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Check" type="CheckButton" parent="Row"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(36, 0)
+text = ""
+
+[node name="Title" type="Label" parent="Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Task"
+vertical_alignment = 1
+
+[node name="Status" type="Label" parent="Row"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(92, 0)
+text = "Open"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Remove" type="Button" parent="Row"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Remove"

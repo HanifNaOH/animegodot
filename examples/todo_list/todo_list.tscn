@@ -1,0 +1,138 @@
+[gd_scene format=3 uid="uid://bq7ysa17j6818"]
+
+[ext_resource type="Script" uid="uid://dykdqp4ifiw7l" path="res://examples/todo_list/todo_list.gd" id="1_app"]
+
+[node name="TodoListApp" type="Control" unique_id=1191231933]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+layout_direction = 2
+script = ExtResource("1_app")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1186370376]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.035, 0.047, 0.07, 1)
+
+[node name="Page" type="MarginContainer" parent="." unique_id=1590209781]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = 36.0
+offset_right = -48.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Column" type="VBoxContainer" parent="Page" unique_id=1040108385]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Header" type="HBoxContainer" parent="Page/Column" unique_id=2106267514]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Page/Column/Header" unique_id=328195289]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "Today"
+
+[node name="RemainingGroup" type="HBoxContainer" parent="Page/Column/Header" unique_id=1563655728]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Remaining" type="Label" parent="Page/Column/Header/RemainingGroup" unique_id=1821757195]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 0.73, 1)
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="RemainingText" type="Label" parent="Page/Column/Header/RemainingGroup" unique_id=1565913891]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "open"
+
+[node name="Summary" type="Label" parent="Page/Column" unique_id=1720780431]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.63, 0.73, 1)
+text = "0 open  |  0 completed"
+
+[node name="AddRow" type="HBoxContainer" parent="Page/Column" unique_id=1701594930]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Draft" type="LineEdit" parent="Page/Column/AddRow" unique_id=188235342]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+layout_direction = 2
+placeholder_text = "What needs doing?"
+alignment = 2
+text_direction = 1
+
+[node name="Add" type="Button" parent="Page/Column/AddRow" unique_id=1308327495]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 0)
+layout_mode = 2
+text = "Add task"
+
+[node name="Toolbar" type="HBoxContainer" parent="Page/Column" unique_id=1158596268]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Filter" type="OptionButton" parent="Page/Column/Toolbar" unique_id=2028265738]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "All tasks"
+popup/item_0/id = 0
+popup/item_1/text = "Open"
+popup/item_1/id = 1
+popup/item_2/text = "Completed"
+popup/item_2/id = 2
+
+[node name="ClearCompleted" type="Button" parent="Page/Column/Toolbar" unique_id=1343566832]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear completed"
+
+[node name="ListFrame" type="PanelContainer" parent="Page/Column" unique_id=1504154176]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ListColumn" type="VBoxContainer" parent="Page/Column/ListFrame" unique_id=824532217]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TodoScroll" type="ScrollContainer" parent="Page/Column/ListFrame/ListColumn" unique_id=435467782]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TodoList" type="VBoxContainer" parent="Page/Column/ListFrame/ListColumn/TodoScroll" unique_id=2131359505]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyMessage" type="Label" parent="Page/Column/ListFrame/ListColumn" unique_id=2077248907]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.63, 0.73, 1)
+text = "Nothing here yet. Add a task above."
+horizontal_alignment = 1
