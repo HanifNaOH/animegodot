@@ -1,5 +1,5 @@
 class_name AnimeRegistry
-extends Node
+extends RefCounted
 
 const OVERWRITE_NONE := &"none"
 const OVERWRITE_AUTO := &"auto"
@@ -21,9 +21,6 @@ static func get_instance():
 			return existing
 
 	var created := AnimeRegistry.new()
-	created.name = "AnimeGodotRegistry"
-	created.process_mode = Node.PROCESS_MODE_DISABLED
-	root.add_child(created)
 	root.set_meta(metadata_key, created)
 	return created
 

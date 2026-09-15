@@ -61,13 +61,28 @@ Anime.to($Sprite, {
 
 The editor dock provides AnimationPlayer preview, pause, reverse, stop, scrubbing, runtime inspection, and reusable `.tres` animation export.
 
+## Editor Dock Example
+
+Open `examples/dock_demo/animation_dock_demo.tscn` in the editor. Select the scene root or its `AnimationPlayer`, then open the AnimeGodot dock on the right. Choose `slide_and_fade`, `bounce`, `pulse`, or `fade_in` to preview, pause, reverse, stop, scrub, or save a clip as a `.tres` resource. Use **Save All Animations (.tres)** to export the complete default `AnimationLibrary` as one batch resource.
+
+Attach that batch resource to a new `AnimationPlayer` with the same target hierarchy:
+
+```gdscript
+var player := AnimationPlayer.new()
+var library := load("res://animegodot_AnimationPlayer_library.tres") as AnimationLibrary
+player.add_animation_library(&"", library)
+add_child(player)
+player.play(&"slide_and_fade")
+```
+
 ## Tests
 
-Run the runtime suite with the configured Godot executable:
+Run the complete test folder through GUT with the configured Godot executable:
 
 ```text
-godot --headless --path . --script res://tests/test_anime_runtime.gd
-godot --headless --path . --script res://tests/test_todo_list.gd
+godot --headless --path . --script res://addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json -gexit
 ```
+
+The GUT editor uses `.gut_editor_config.json` to discover the same `res://tests` folder.
 
 See [docs/plan.md](docs/plan.md) for the implementation roadmap and [examples/todo_list/README.md](examples/todo_list/README.md) for the GDVM example architecture.

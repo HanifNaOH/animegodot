@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dykdqp4ifiw7l" path="res://examples/todo_list/todo_list.gd" id="1_app"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_s7ra3"]
+
 [node name="TodoListApp" type="Control" unique_id=1191231933]
 layout_mode = 3
 anchors_preset = 15
@@ -115,12 +117,14 @@ text = "Clear completed"
 [node name="ListFrame" type="PanelContainer" parent="Page/Column" unique_id=1504154176]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_s7ra3")
 
 [node name="ListColumn" type="VBoxContainer" parent="Page/Column/ListFrame" unique_id=824532217]
 layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="TodoScroll" type="ScrollContainer" parent="Page/Column/ListFrame/ListColumn" unique_id=435467782]
+clip_contents = false
 layout_mode = 2
 size_flags_vertical = 3
 

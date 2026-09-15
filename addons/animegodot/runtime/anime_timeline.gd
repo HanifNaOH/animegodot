@@ -109,6 +109,8 @@ func play():
 	if _completed or _killed:
 		return self
 
+	var start_position := _position if _paused else 0.0
+	start_position = clampf(start_position, 0.0, duration)
 	_initial_capture()
 	active = true
 	_paused = false
@@ -133,22 +135,34 @@ func play():
 	var clock_position := 0.0
 	for scheduled_entry in scheduled:
 		var start_time: float = scheduled_entry["start"]
-		var gap := start_time - clock_position
+		var entry: Dictionary = scheduled_entry["entry"]
+		var entry_duration: float = entry["duration"]
+		if start_position > start_time + entry_duration:
+			continue
+		if entry["type"] == &"call" and start_position > start_time:
+			continue
+		var relative_start := maxf(start_time - start_position, 0.0)
+		var elapsed := maxf(start_position - start_time, 0.0)
+		var gap := relative_start - clock_position
 		if gap > 0.0:
 			_clock.tween_interval(gap)
-		_clock.tween_callback(Callable(self, "_start_scheduled_entry").bind(scheduled_entry["entry"]))
-		clock_position = maxf(clock_position, start_time)
-	var remaining := duration - clock_position
+		_clock.tween_callback(Callable(self, "_start_scheduled_entry").bind(entry, elapsed))
+		clock_position = maxf(clock_position, relative_start)
+	var remaining := duration - start_position - clock_position
 	if remaining > 0.0:
 		_clock.tween_interval(remaining)
 	_clock.finished.connect(_on_clock_finished)
 
-	_progress_tween.tween_method(
-		Callable(self, "_emit_progress"),
-		0.0,
-		1.0,
-		duration
-	)
+	var progress_duration := maxf(duration - start_position, 0.0)
+	if progress_duration > 0.0:
+		_progress_tween.tween_method(
+			Callable(self, "_emit_progress"),
+			start_position / duration,
+			1.0,
+			progress_duration
+		)
+	else:
+		_progress_tween.tween_callback(Callable(self, "_emit_progress").bind(1.0))
 	_apply_time_scale()
 	return self
 
@@ -169,6 +183,8 @@ func pause():
 
 
 func resume():
+	if not active and _paused:
+		return play()
 	if not active:
 		return self
 	_paused = false
@@ -197,6 +213,7 @@ func reverse():
 func seek(position: float):
 	_initial_capture()
 	_stop_runtime()
+	_reset_entry_runtime()
 	_completed = false
 	_killed = false
 	active = false
@@ -323,11 +340,11 @@ func _sort_scheduled_entries(left: Dictionary, right: Dictionary) -> bool:
 	return float(left["start"]) < float(right["start"])
 
 
-func _start_scheduled_entry(entry: Dictionary) -> void:
-	_start_entry(entry)
+func _start_scheduled_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
+	_start_entry(entry, elapsed)
 
 
-func _start_entry(entry: Dictionary) -> void:
+func _start_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 	if entry["started"] and _direction > 0:
 		return
 	entry["started"] = true
@@ -340,23 +357,33 @@ func _start_entry(entry: Dictionary) -> void:
 			var child: AnimeTimeline = entry["timeline"]
 			if not _active_timelines.has(child):
 				_active_timelines.append(child)
+			if not child.completed.is_connected(_on_child_timeline_finished):
 				child.completed.connect(_on_child_timeline_finished)
+			if not child.killed.is_connected(_on_child_timeline_finished):
 				child.killed.connect(_on_child_timeline_finished)
-			if _direction > 0:
-				child.play()
-			else:
-				child.reverse()
+			child._restart_internal(_direction)
+			if elapsed > 0.0 and elapsed < child.duration:
+				child.seek(elapsed)
+				child.resume()
 		&"tween":
-			_start_tween_entry(entry)
+			_start_tween_entry(entry, elapsed)
 
 
-func _start_tween_entry(entry: Dictionary) -> void:
+func _start_tween_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 	var targets := _normalize_targets(entry["target"])
 	var stagger := maxf(float(_option_value(entry["properties"], &"stagger", 0.0)), 0.0)
+	var base_delay := maxf(float(_option_value(entry["properties"], &"delay", 0.0)), 0.0)
+	var base_duration := maxf(float(_option_value(entry["properties"], &"duration", 0.0)), 0.0)
+	var repeat_count := maxi(int(_option_value(entry["properties"], &"repeat", 0)), 0)
+	var total_duration := base_duration * (repeat_count + 1)
 	entry["handles"] = []
 	for index in targets.size():
 		var target = targets[index]
 		if target == null or not is_instance_valid(target):
+			continue
+		var target_elapsed := elapsed - base_delay - stagger * index
+		if target_elapsed >= total_duration and entry["mode"] != &"set":
+			_apply_values(target, _final_values(entry, index))
 			continue
 		var properties: Dictionary = entry["properties"].duplicate(true)
 		if stagger > 0.0:
@@ -367,6 +394,15 @@ func _start_tween_entry(entry: Dictionary) -> void:
 			var initial_values: Dictionary = entry["initial_values"][index]
 			for property_path in initial_values:
 				properties[property_path] = initial_values[property_path]
+		if target_elapsed > 0.0 and entry["mode"] != &"set":
+			mode = &"to"
+			properties[&"delay"] = 0.0
+			properties[&"duration"] = maxf(total_duration - target_elapsed, 0.0)
+			var final_values := _final_values(entry, index)
+			for property_path in final_values:
+				properties[property_path] = final_values[property_path]
+		elif elapsed > 0.0 and target_elapsed < 0.0:
+			properties[&"delay"] = -target_elapsed
 		var tween = TWEEN_SCRIPT.create(target, properties, mode)
 		tween.completed.connect(_on_child_finished)
 		tween.killed.connect(_on_child_finished)
@@ -374,6 +410,14 @@ func _start_tween_entry(entry: Dictionary) -> void:
 		tween.play()
 		entry["handles"].append(tween)
 		_active_tweens.append(tween)
+
+
+func _final_values(entry: Dictionary, index: int) -> Dictionary:
+	if _direction < 0:
+		return entry["initial_values"][index]
+	if bool(_option_value(entry["properties"], &"yoyo", false)) and int(_option_value(entry["properties"], &"repeat", 0)) % 2 == 1:
+		return entry["initial_values"][index]
+	return entry["end_values"][index]
 
 
 func _initial_capture() -> void:
@@ -455,7 +499,7 @@ func _apply_at(position: float) -> void:
 func _interpolate(initial_value: Variant, end_value: Variant, elapsed: float, total: float, easing: Dictionary) -> Variant:
 		if typeof(initial_value) != typeof(end_value):
 			return end_value if elapsed >= total else initial_value
-		if initial_value is float or initial_value is int or initial_value is Vector2 or initial_value is Vector3 or initial_value is Color:
+		if initial_value is float or initial_value is int or initial_value is Vector2 or initial_value is Vector3 or initial_value is Vector4 or initial_value is Color:
 			return Tween.interpolate_value(
 				initial_value,
 				end_value - initial_value,
@@ -464,6 +508,16 @@ func _interpolate(initial_value: Variant, end_value: Variant, elapsed: float, to
 				easing["transition"],
 				easing["ease"]
 			)
+		if initial_value is Quaternion:
+			var weight := float(Tween.interpolate_value(
+				0.0,
+				1.0,
+				elapsed,
+				total,
+				easing["transition"],
+				easing["ease"]
+			))
+			return initial_value.slerp(end_value, weight)
 		return end_value if elapsed >= total else initial_value
 
 

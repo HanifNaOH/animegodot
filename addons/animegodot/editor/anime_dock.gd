@@ -91,6 +91,11 @@ func _build_ui() -> void:
 	save_button.pressed.connect(_on_save_animation)
 	add_child(save_button)
 
+	var save_library_button := Button.new()
+	save_library_button.text = "Save All Animations (.tres)"
+	save_library_button.pressed.connect(_on_save_animation_library)
+	add_child(save_library_button)
+
 	_runtime_label = Label.new()
 	_runtime_label.text = "Active runtime animations: 0"
 	_runtime_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -235,7 +240,19 @@ func _update_runtime_state() -> void:
 		_runtime_label.text = "Active runtime animations: 0"
 		return
 	var records: Array = registry.get_active_records()
-	_runtime_label.text = "Active runtime animations: %d" % records.size()
+	var lines: Array[String] = ["Active runtime animations: %d" % records.size()]
+	for record in records:
+		var target: Object = record["target"]
+		var target_name: String = ""
+		if target is Node:
+			target_name = String(target.get_path())
+		else:
+			target_name = target.get_class()
+		var property_names: Array[String] = []
+		for property_path in record["properties"]:
+			property_names.append(String(property_path))
+		lines.append("%s | %s" % [target_name, ", ".join(property_names)])
+	_runtime_label.text = "\n".join(lines)
 
 
 func _on_save_animation() -> void:
@@ -252,3 +269,17 @@ func _on_save_animation() -> void:
 		_status_label.text = "Saved %s" % path
 	else:
 		_status_label.text = "Could not save animation: %s" % error
+
+
+func _on_save_animation_library() -> void:
+	if _animation_player == null or not _animation_player.has_animation_library(&""):
+		_status_label.text = "No default animation library to save."
+		return
+	var library := _animation_player.get_animation_library(&"")
+	var safe_name := String(_animation_player.name).replace("/", "_")
+	var path := "res://animegodot_%s_library.tres" % safe_name
+	var error := ResourceSaver.save(library, path)
+	if error == OK:
+		_status_label.text = "Saved %d animations to %s" % [library.get_animation_list().size(), path]
+	else:
+		_status_label.text = "Could not save animation library: %s" % error

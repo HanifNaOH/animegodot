@@ -1,13 +1,9 @@
-extends SceneTree
+extends GutTest
 
 const VIEW_MODEL_SCRIPT = preload("res://examples/todo_list/todo_list_view_model.gd")
 
 
-func _init() -> void:
-	call_deferred("_run")
-
-
-func _run() -> void:
+func test_todo_view_model() -> void:
 	var view_model = VIEW_MODEL_SCRIPT.new()
 	var observed_state := {"remaining": -1}
 	view_model.changed.connect(func(_property_name: StringName, _old_value, new_value):
@@ -28,8 +24,7 @@ func _run() -> void:
 	view_model.filter = "open"
 	_assert(view_model.visible_items.size() == 3, "The open filter should exclude completed tasks")
 	view_model.visible_items[0].completed = true
-	await process_frame
-	await process_frame
+	await wait_process_frames(2)
 	_assert(view_model.remaining_count == 2, "Changing a child item should update aggregate counts")
 	_assert(observed_state["remaining"] == 2, "Aggregate change notifications should use the committed child value; observed=%d" % observed_state["remaining"])
 	_assert(view_model.visible_items.size() == 2, "The open filter should react to child completion")
@@ -43,11 +38,7 @@ func _run() -> void:
 	view_model.remove_item(view_model.items[0].id)
 	_assert(view_model.total_count == 1, "Removing a task should remove its item")
 	view_model.dispose()
-	print("GDVM to-do tests passed.")
-	quit(0)
 
 
 func _assert(condition: bool, message: String) -> void:
-	if not condition:
-		push_error(message)
-		quit(1)
+	assert_true(condition, message)

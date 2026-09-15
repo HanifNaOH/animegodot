@@ -1,41 +1,10 @@
-extends SceneTree
+extends GutTest
 
 const ANIME_SCRIPT = preload("res://addons/animegodot/runtime/anime.gd")
 
-var _failures: Array[String] = []
-
-
-func _init() -> void:
-	print("AnimeGodot runtime tests starting.")
-	call_deferred("_run")
-
-
-func _run() -> void:
-	await _test_to_callbacks()
-	await _test_from_and_set()
-	await _test_repeat_and_yoyo()
-	await _test_target_arrays_and_stagger()
-	await _test_context_cleanup()
-	await _test_timeline_structure()
-	await _test_nested_timeline()
-	await _test_timeline_controls()
-	await _test_overwrite_modes()
-	await _test_cleanup_callbacks()
-	await _test_phase5_features()
-
-	if _failures.is_empty():
-		print("AnimeGodot runtime tests passed.")
-		quit(0)
-		return
-
-	for failure in _failures:
-		push_error(failure)
-	quit(1)
-
-
-func _test_to_callbacks() -> void:
+func test_to_callbacks() -> void:
 	var target := Node2D.new()
-	root.add_child(target)
+	add_child_autoqfree(target)
 	var callback_state := {"started": false, "completed": false, "update_count": 0}
 	var tween = ANIME_SCRIPT.to(target, {
 		"position": Vector2(120.0, 80.0),
@@ -54,9 +23,9 @@ func _test_to_callbacks() -> void:
 	target.queue_free()
 
 
-func _test_from_and_set() -> void:
+func test_from_and_set() -> void:
 	var target := Node2D.new()
-	root.add_child(target)
+	add_child_autoqfree(target)
 	target.position = Vector2(40.0, 30.0)
 	var from_tween = ANIME_SCRIPT.from(target, {
 		"position": Vector2.ZERO,
@@ -75,9 +44,9 @@ func _test_from_and_set() -> void:
 	target.queue_free()
 
 
-func _test_repeat_and_yoyo() -> void:
+func test_repeat_and_yoyo() -> void:
 	var target := Node2D.new()
-	root.add_child(target)
+	add_child_autoqfree(target)
 	var tween = ANIME_SCRIPT.to(target, {
 		"position:x": 100.0,
 		"duration": 0.02,
@@ -89,11 +58,11 @@ func _test_repeat_and_yoyo() -> void:
 	target.queue_free()
 
 
-func _test_target_arrays_and_stagger() -> void:
+func test_target_arrays_and_stagger() -> void:
 	var first := Node2D.new()
 	var second := Node2D.new()
-	root.add_child(first)
-	root.add_child(second)
+	add_child_autoqfree(first)
+	add_child_autoqfree(second)
 	var tweens = ANIME_SCRIPT.to([first, second], {
 		"position:x": 50.0,
 		"duration": 0.02,
@@ -107,30 +76,30 @@ func _test_target_arrays_and_stagger() -> void:
 	second.queue_free()
 
 
-func _test_context_cleanup() -> void:
-	var owner := Node.new()
-	root.add_child(owner)
-	var context = ANIME_SCRIPT.context(owner)
-	var tween = context.to(owner, {
+func test_context_cleanup() -> void:
+	var test_owner := Node.new()
+	add_child_autoqfree(test_owner)
+	var context = ANIME_SCRIPT.context(test_owner)
+	var tween = context.to(test_owner, {
 		"process_mode": Node.PROCESS_MODE_DISABLED,
 		"duration": 1.0,
 	})
-	owner.queue_free()
-	await process_frame
+	test_owner.queue_free()
+	await wait_process_frames(1)
 	_expect(tween.is_finished(), "A context should clean up when its owner exits the tree")
 
 
-func _test_timeline_structure() -> void:
-	var owner := Node2D.new()
+func test_timeline_structure() -> void:
+	var test_owner := Node2D.new()
 	var first := Node2D.new()
 	var second := Node2D.new()
 	var parallel_target := Node2D.new()
-	owner.add_child(first)
-	owner.add_child(second)
-	owner.add_child(parallel_target)
-	root.add_child(owner)
+	test_owner.add_child(first)
+	test_owner.add_child(second)
+	test_owner.add_child(parallel_target)
+	add_child_autoqfree(test_owner)
 	var callback_state := {"called": false}
-	var timeline = ANIME_SCRIPT.timeline(owner)
+	var timeline = ANIME_SCRIPT.timeline(test_owner)
 	timeline.to(first, {"position:x": 100.0, "duration": 0.02})
 	timeline.label(&"middle")
 	timeline.to(second, {"position:x": 100.0, "duration": 0.02}, "middle")
@@ -143,39 +112,66 @@ func _test_timeline_structure() -> void:
 	_expect(second.position.x == 100.0, "Label-positioned timeline entry should complete")
 	_expect(parallel_target.position.x == 100.0, "Parallel timeline entry should complete")
 	_expect(callback_state["called"], "Timeline call entry should execute")
-	owner.queue_free()
+	test_owner.queue_free()
 
 
-func _test_nested_timeline() -> void:
-	var owner := Node2D.new()
+func test_nested_timeline() -> void:
+	var test_owner := Node2D.new()
 	var target := Node2D.new()
-	owner.add_child(target)
-	root.add_child(owner)
-	var child = ANIME_SCRIPT.timeline(owner)
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var child = ANIME_SCRIPT.timeline(test_owner)
 	child.to(target, {"position:y": 80.0, "duration": 0.02})
-	var parent = ANIME_SCRIPT.timeline(owner)
+	var parent = ANIME_SCRIPT.timeline(test_owner)
 	parent.label(&"intro", 0.0)
 	parent.add(child, "intro")
 	parent.play()
 	await _wait_for_timeline(parent)
-	await process_frame
+	await wait_process_frames(1)
 	_expect(target.position.y == 80.0, "Nested timeline should complete through its parent")
-	owner.queue_free()
+	test_owner.queue_free()
 
 
-func _test_timeline_controls() -> void:
-	var owner := Node2D.new()
+func test_nested_timeline_replay() -> void:
+	var test_owner := Node2D.new()
 	var target := Node2D.new()
-	owner.add_child(target)
-	root.add_child(owner)
-	var timeline = ANIME_SCRIPT.timeline(owner)
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var child = ANIME_SCRIPT.timeline(test_owner)
+	child.to(target, {"position:x": 80.0, "duration": 0.02})
+	var parent = ANIME_SCRIPT.timeline(test_owner)
+	parent.add(child)
+	parent.play()
+	await _wait_for_timeline(parent)
+	_expect(parent.is_finished(), "Nested parent should finish its first playback")
+
+	parent.restart()
+	await _wait_for_timeline(parent)
+	_expect(parent.is_finished() and is_equal_approx(target.position.x, 80.0), "Nested parent should restart its child")
+
+	parent.reverse()
+	await _wait_for_timeline(parent)
+	_expect(parent.is_finished() and is_zero_approx(target.position.x), "Nested parent should reverse its child")
+
+	parent.reverse()
+	await _wait_for_timeline(parent)
+	_expect(parent.is_finished() and is_equal_approx(target.position.x, 80.0), "Nested parent should reverse back through its child")
+	test_owner.queue_free()
+
+
+func test_timeline_controls() -> void:
+	var test_owner := Node2D.new()
+	var target := Node2D.new()
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var timeline = ANIME_SCRIPT.timeline(test_owner)
 	timeline.to(target, {"position:x": 100.0, "duration": 0.12})
 	timeline.play()
-	await process_frame
+	await wait_process_frames(1)
 	timeline.pause()
 	var paused_position := target.position.x
-	await process_frame
-	await process_frame
+	await wait_process_frames(1)
+	await wait_process_frames(1)
 	_expect(is_equal_approx(target.position.x, paused_position), "Paused timeline should stop its child tweens")
 	timeline.resume()
 	await _wait_for_timeline(timeline)
@@ -191,16 +187,27 @@ func _test_timeline_controls() -> void:
 
 	timeline.seek(0.06)
 	_expect(target.position.x > 0.0 and target.position.x < 100.0, "Seek should sample an intermediate timeline value")
+	var seeked_timeline_position: float = timeline.get_position()
+	timeline.resume()
+	var seek_frames := 12
+	while timeline.get_position() <= seeked_timeline_position and not timeline.is_finished() and seek_frames > 0:
+		await wait_process_frames(1)
+		seek_frames -= 1
+	_expect(
+		timeline.get_position() > seeked_timeline_position,
+		"A timeline should resume from its sought position"
+	)
+	await _wait_for_timeline(timeline)
 	timeline.time_scale = 2.0
 	timeline.restart()
 	await _wait_for_timeline(timeline)
 	_expect(target.position.x == 100.0, "Time-scaled timeline should complete")
-	owner.queue_free()
+	test_owner.queue_free()
 
 
-func _test_overwrite_modes() -> void:
+func test_overwrite_modes() -> void:
 	var target := Node2D.new()
-	root.add_child(target)
+	add_child_autoqfree(target)
 	target.modulate = Color.WHITE
 	var first = ANIME_SCRIPT.to(target, {
 		"position": Vector2(100.0, 0.0),
@@ -209,7 +216,7 @@ func _test_overwrite_modes() -> void:
 		"duration": 0.12,
 		"overwrite": ANIME_SCRIPT.OVERWRITE_NONE,
 	})
-	await process_frame
+	await wait_process_frames(1)
 	var replacement = ANIME_SCRIPT.to(target, {
 		"position": Vector2(25.0, 0.0),
 		"duration": 0.02,
@@ -242,7 +249,7 @@ func _test_overwrite_modes() -> void:
 		"duration": 0.12,
 		"overwrite": ANIME_SCRIPT.OVERWRITE_NONE,
 	})
-	await process_frame
+	await wait_process_frames(1)
 	var all_new = ANIME_SCRIPT.to(target, {
 		"position": Vector2.ZERO,
 		"duration": 0.02,
@@ -253,9 +260,9 @@ func _test_overwrite_modes() -> void:
 	target.queue_free()
 
 
-func _test_cleanup_callbacks() -> void:
+func test_cleanup_callbacks() -> void:
 	var target := Node2D.new()
-	root.add_child(target)
+	add_child_autoqfree(target)
 	var state := {"kill_count": 0}
 	var target_tween = ANIME_SCRIPT.to(target, {
 		"position": Vector2(100.0, 0.0),
@@ -263,14 +270,14 @@ func _test_cleanup_callbacks() -> void:
 		"on_kill": func() -> void: state["kill_count"] += 1,
 	})
 	target.queue_free()
-	await process_frame
+	await wait_process_frames(1)
 	_expect(target_tween.is_finished(), "Freed targets should finish their active tween")
 	_expect(state["kill_count"] == 0, "Target cleanup should not invoke user kill callbacks")
 
-	var owner := Node.new()
-	root.add_child(owner)
-	var context = ANIME_SCRIPT.context(owner)
-	var context_tween = context.to(owner, {
+	var test_owner := Node.new()
+	add_child_autoqfree(test_owner)
+	var context = ANIME_SCRIPT.context(test_owner)
+	var context_tween = context.to(test_owner, {
 		"process_mode": Node.PROCESS_MODE_DISABLED,
 		"duration": 1.0,
 		"on_kill": func() -> void: state["kill_count"] += 1,
@@ -278,16 +285,17 @@ func _test_cleanup_callbacks() -> void:
 	context.dispose()
 	_expect(context_tween.is_finished(), "Disposed contexts should finish their active tween")
 	_expect(state["kill_count"] == 0, "Context cleanup should not invoke user kill callbacks")
-	owner.queue_free()
+	test_owner.queue_free()
 
 
-func _test_phase5_features() -> void:
-	var owner := Node2D.new()
+func test_phase5_features() -> void:
+	var test_owner := Node2D.new()
 	var target := Node2D.new()
+	target.name = "Target"
 	var animation_player := AnimationPlayer.new()
-	owner.add_child(target)
-	owner.add_child(animation_player)
-	root.add_child(owner)
+	test_owner.add_child(target)
+	test_owner.add_child(animation_player)
+	add_child_autoqfree(test_owner)
 
 	var curve := Curve2D.new()
 	curve.add_point(Vector2.ZERO)
@@ -300,6 +308,10 @@ func _test_phase5_features() -> void:
 	_expect(is_equal_approx(target.position.x, 100.0), "Motion path should reach the curve endpoint")
 	_expect(is_zero_approx(target.position.y), "Motion path should preserve the curve endpoint axis")
 	_expect(is_zero_approx(target.rotation), "Path alignment should follow the curve tangent")
+	var invalid_path := Node2D.new()
+	var invalid_path_tween = ANIME_SCRIPT.motion_path(target, invalid_path, {"duration": 0.02})
+	_expect(invalid_path_tween.is_finished(), "Invalid motion paths should finish as killed handles")
+	invalid_path.queue_free()
 
 	var shader := Shader.new()
 	shader.code = "shader_type canvas_item; uniform float glow; void fragment() { COLOR = vec4(glow); }"
@@ -326,7 +338,14 @@ func _test_phase5_features() -> void:
 		0.5
 	)
 	_expect(animation.get_track_count() == 1, "Animation conversion should create one value track")
-	_expect(String(animation.track_get_path(0)).ends_with(":position"), "Animation conversion should target the requested property")
+	_expect(String(animation.track_get_path(0)) == "Target:position", "Animation conversion should target the requested property from the AnimationPlayer root")
+	var invalid_animation := ANIME_SCRIPT.animation_from_properties(
+		animation_player,
+		target,
+		{"missing_property": 1.0},
+		0.5
+	)
+	_expect(invalid_animation.get_track_count() == 0, "Invalid AnimationPlayer properties should be skipped safely")
 	var installed := ANIME_SCRIPT.add_animation(
 		animation_player,
 		&"move",
@@ -337,12 +356,15 @@ func _test_phase5_features() -> void:
 	_expect(installed.get_track_count() == 1, "AnimationPlayer conversion should return the installed animation")
 	_expect(animation_player.has_animation_library(&""), "AnimationPlayer conversion should create a default library")
 	_expect(animation_player.get_animation_library(&"").has_animation(&"move"), "AnimationPlayer conversion should register the animation")
-	owner.queue_free()
+	test_owner.queue_free()
 
 
 func _wait_for_timeline(timeline: Variant) -> void:
 	if timeline != null and not timeline.is_finished():
-		await timeline.completed
+		var timeout_frames := 60
+		while not timeline.is_finished() and timeout_frames > 0:
+			await wait_process_frames(1)
+			timeout_frames -= 1
 
 
 func _wait_for_tween(tween: Variant) -> void:
@@ -351,5 +373,4 @@ func _wait_for_tween(tween: Variant) -> void:
 
 
 func _expect(condition: bool, message: String) -> void:
-	if not condition:
-		_failures.append(message)
+	assert_true(condition, message)

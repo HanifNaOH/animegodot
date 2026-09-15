@@ -1,0 +1,214 @@
+[gd_scene format=3 uid="uid://b73sx3axyjgjd"]
+
+[ext_resource type="Script" uid="uid://c5763d0sycvpl" path="res://examples/dock_demo/animation_dock_demo.gd" id="1_demo"]
+
+[sub_resource type="Animation" id="Animation_h5o7p"]
+resource_name = "bounce"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Target:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.18, 0.38, 0.58, 0.78, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(320, 260), Vector2(320, 120), Vector2(320, 230), Vector2(320, 145), Vector2(320, 205), Vector2(320, 170)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Target:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.18, 0.38, 0.58, 0.78, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0.9, 0.9), Vector2(1.05, 1.05), Vector2(0.96, 0.96), Vector2(1.02, 1.02), Vector2(0.98, 0.98), Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_hku58"]
+resource_name = "fade_in"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Target:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(320, 210), Vector2(320, 210)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Target:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.7, 0.7), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Target:modulate:a")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Animation_3asny"]
+resource_name = "pulse"
+length = 1.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Target:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(320, 210), Vector2(320, 210)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Target:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.16, 1.16), Vector2(1, 1), Vector2(1.16, 1.16), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Target:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6, 0.9, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.4, 0.85, 0.73, 1), Color(0.98, 0.58, 0.28, 1), Color(0.4, 0.85, 0.73, 1), Color(0.98, 0.58, 0.28, 1), Color(0.4, 0.85, 0.73, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_mm5qo"]
+resource_name = "slide_and_fade"
+length = 1.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Target:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4666667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(140, 170), Vector2(520, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Target:modulate:a")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.35, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_h5o7p"]
+_data = {
+&"bounce": SubResource("Animation_h5o7p"),
+&"fade_in": SubResource("Animation_hku58"),
+&"pulse": SubResource("Animation_3asny"),
+&"slide_and_fade": SubResource("Animation_mm5qo")
+}
+
+[node name="AnimationDockDemo" type="Control" unique_id=1192011333]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_demo")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1516543032]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.035, 0.047, 0.07, 1)
+
+[node name="Heading" type="Label" parent="." unique_id=703161970]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 42.0
+offset_right = 600.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "AnimationPlayer Dock Demo"
+
+[node name="Hint" type="Label" parent="." unique_id=515477909]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 86.0
+offset_right = 760.0
+offset_bottom = 116.0
+theme_override_colors/font_color = Color(0.58, 0.63, 0.73, 1)
+theme_override_font_sizes/font_size = 15
+text = "Select this scene or its AnimationPlayer, then use the AnimeGodot dock."
+
+[node name="Target" type="ColorRect" parent="." unique_id=770515233]
+unique_name_in_owner = true
+modulate = Color(0.4, 0.85, 0.73, 1)
+layout_mode = 0
+offset_left = 320.0
+offset_top = 260.0
+offset_right = 500.0019
+offset_bottom = 359.99844
+scale = Vector2(0.9, 0.9)
+pivot_offset = Vector2(92, 52)
+color = Color(0.4, 0.85, 0.73, 1)
+
+[node name="TargetLabel" type="Label" parent="Target" unique_id=1358646972]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.035, 0.047, 0.07, 1)
+theme_override_font_sizes/font_size = 18
+text = "slide_and_fade"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1294496043]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_h5o7p")

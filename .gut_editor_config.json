@@ -1,0 +1,11 @@
+{
+  "dirs": [
+    "res://tests"
+  ],
+  "configured_dirs": [
+    "res://tests"
+  ],
+  "include_subdirs": false,
+  "prefix": "test_",
+  "suffix": ".gd"
+}

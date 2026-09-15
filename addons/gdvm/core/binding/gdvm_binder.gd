@@ -333,18 +333,50 @@ func dispose() -> void:
 	if main_loop != null and main_loop.has_signal(&"process_frame") and main_loop.is_connected(&"process_frame", _owner_liveness_callback):
 		main_loop.disconnect(&"process_frame", _owner_liveness_callback)
 	_clear_connections()
+	for binding in _bindings:
+		_release_binding(binding)
 	for list_binding in _list_bindings:
 		for item in list_binding.item_nodes:
 			if is_instance_valid(item):
 				item.free()
+		_release_list_binding(list_binding)
 		list_binding.item_nodes.clear()
 		list_binding.item_identities.clear()
 		list_binding.item_view_models.clear()
 		list_binding.item_values.clear()
+	for binding in _path_bindings:
+		_release_path_binding(binding)
 	_list_bindings.clear()
 	_bindings.clear()
 	_path_bindings.clear()
 	_view_model = null
+
+
+func _release_binding(binding: Binding) -> void:
+	binding.callback = Callable()
+	binding.on_changed = Callable()
+	binding.converter_callable = Callable()
+	binding.reverse_converter = Callable()
+	binding.tween = null
+	binding.node = null
+
+
+func _release_path_binding(binding: PathBinding) -> void:
+	binding.callback = Callable()
+	binding.on_changed = Callable()
+	binding.converter_callable = Callable()
+	binding.reverse_converter = Callable()
+	binding.source_callbacks.clear()
+	binding.tween = null
+	binding.node = null
+
+
+func _release_list_binding(binding: ListBinding) -> void:
+	binding.item_view_model_factory = Callable()
+	binding.on_added = Callable()
+	binding.on_removed = Callable()
+	binding.container = null
+	binding.template = null
 
 func _validate_binding(node: Node, path: StringName, prop: String) -> bool:
 	if _disposed:

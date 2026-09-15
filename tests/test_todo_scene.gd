@@ -1,17 +1,12 @@
-extends SceneTree
+extends GutTest
 
 const APP_SCENE = preload("res://examples/todo_list/todo_list.tscn")
 
 
-func _init() -> void:
-	call_deferred("_run")
-
-
-func _run() -> void:
+func test_todo_scene() -> void:
 	var app = APP_SCENE.instantiate()
-	root.add_child(app)
-	await process_frame
-	await process_frame
+	add_child_autoqfree(app)
+	await wait_process_frames(2)
 	var draft: LineEdit = app.get_node("Page/Column/AddRow/Draft")
 	_assert(draft.layout_direction == Control.LAYOUT_DIRECTION_LTR, "The draft input should use LTR layout")
 	_assert(draft.text_direction == Control.TEXT_DIRECTION_LTR, "The draft input should use LTR text direction")
@@ -21,17 +16,13 @@ func _run() -> void:
 	var first_row := list.get_child(0)
 	var remove_button: Button = first_row.get_node("Row/Remove")
 	remove_button.pressed.emit()
-	await process_frame
+	await wait_process_frames(1)
 	_assert(list.get_child_count() == 3, "The row should remain visible during its exit animation")
-	await create_timer(0.24).timeout
+	await wait_seconds(0.24)
 	_assert(list.get_child_count() == 2, "Removing a row should reconcile the bound list after animation")
 	app.queue_free()
-	await process_frame
-	print("GDVM to-do scene tests passed.")
-	quit(0)
+	await wait_process_frames(3)
 
 
 func _assert(condition: bool, message: String) -> void:
-	if not condition:
-		push_error(message)
-		quit(1)
+	assert_true(condition, message)

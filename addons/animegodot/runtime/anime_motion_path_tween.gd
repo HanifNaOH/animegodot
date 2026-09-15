@@ -174,7 +174,10 @@ func _resolve_curve(path: Variant) -> Curve2D:
 	if path is Curve2D:
 		return path
 	if path is Path2D:
+		if path.curve == null:
+			push_warning("AnimeGodot motion_path received a Path2D without a Curve2D.")
 		return path.curve
+	push_warning("AnimeGodot motion_path expects a Curve2D or Path2D, received %s." % typeof(path))
 	return null
 
 
@@ -216,10 +219,13 @@ func _apply_progress(progress: float) -> void:
 	if PROPERTY_SCRIPT.exists(target, &"position"):
 		PROPERTY_SCRIPT.write(target, &"position", position)
 	if _property_paths.has(&"rotation") and PROPERTY_SCRIPT.exists(target, &"rotation"):
-		var next_distance := minf(distance + 0.1, length)
-		var next_position := _curve.sample_baked(next_distance)
-		if position.distance_to(next_position) > 0.001:
-			PROPERTY_SCRIPT.write(target, &"rotation", position.angle_to_point(next_position))
+		var tangent_delta := clampf(length * 0.01, 0.001, 0.1)
+		var direction := 1.0 if end_progress >= start_progress else -1.0
+		var tangent_start := clampf(distance - tangent_delta * direction, 0.0, length)
+		var tangent_end := clampf(distance + tangent_delta * direction, 0.0, length)
+		var tangent := _curve.sample_baked(tangent_end) - _curve.sample_baked(tangent_start)
+		if tangent.length() > 0.001:
+			PROPERTY_SCRIPT.write(target, &"rotation", tangent.angle())
 	_invoke(_on_update, [progress])
 	updated.emit(self, progress)
 
