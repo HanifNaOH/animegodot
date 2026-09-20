@@ -45,6 +45,65 @@ timeline \\
 
 Use `Anime.set_value()` for immediate property writes. `set` and `call` are reserved by Godot's `Object` API, so AnimeGodot exposes `set_value()` and timeline `invoke()` instead.
 
+### Extended Runtime API
+
+Use `from_to()` when both endpoints should be explicit:
+
+```gdscript
+Anime.from_to($Panel, {
+    "position": Vector2(-200, 80),
+}, {
+    "position": Vector2(400, 80),
+    "duration": 0.8,
+})
+```
+
+Property values can be keyframe arrays, or dictionaries with their own timing:
+
+```gdscript
+Anime.to($Panel, {
+    "position": {
+        "keyframes": [Vector2(120, 80), Vector2(260, 140)],
+        "duration": 0.8,
+        "ease": Anime.EASE_OUT_QUAD,
+    },
+    "modulate:a": {
+        "value": 1.0,
+        "duration": 0.3,
+        "delay": 0.2,
+    },
+})
+```
+
+Tween handles support `pause()`, `resume()`, `seek(seconds)`, `reverse()`, `restart()`, `reset()`, `kill()`, and `get_progress()`. Repeats support `repeat_delay` and directions such as `normal`, `reverse`, and `alternate`.
+
+Target arrays support richer stagger settings:
+
+```gdscript
+Anime.to([$A, $B, $C], {
+    "position:x": 300.0,
+    "duration": 0.5,
+    "stagger": {
+        "each": 0.1,
+        "from": "center",
+        "ease": Anime.EASE_OUT_QUAD,
+    },
+})
+```
+
+Timeline options apply to the timeline itself, while `defaults` apply to child tweens:
+
+```gdscript
+var timeline := Anime.timeline(self, {
+    "defaults": {"duration": 0.4, "ease": Anime.EASE_OUT_QUAD},
+    "repeat": 1,
+    "repeat_delay": 0.2,
+    "yoyo": true,
+    "autoplay": true,
+})
+timeline.to($Panel, {"position:x": 400.0})
+```
+
 ## Godot-Native Features
 
 ```gdscript

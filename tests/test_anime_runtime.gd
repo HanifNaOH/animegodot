@@ -44,6 +44,71 @@ func test_from_and_set() -> void:
 	target.queue_free()
 
 
+func test_from_to() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	target.position = Vector2(20.0, 10.0)
+	var tween = ANIME_SCRIPT.from_to(
+		target,
+		{"position": Vector2(-30.0, -15.0)},
+		{"position": Vector2(80.0, 45.0), "duration": 0.03}
+	)
+	_expect(target.position == Vector2(-30.0, -15.0), "Anime.from_to should apply its start value immediately")
+	await _wait_for_tween(tween)
+	_expect(target.position == Vector2(80.0, 45.0), "Anime.from_to should reach its end value")
+	target.queue_free()
+
+
+func test_keyframes_and_per_property_options() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	target.modulate.a = 0.0
+	var tween = ANIME_SCRIPT.to(target, {
+		"position": {
+			"keyframes": [Vector2(20.0, 0.0), Vector2(80.0, 40.0)],
+			"duration": 0.04,
+			"ease": ANIME_SCRIPT.EASE_LINEAR,
+		},
+		"modulate:a": {
+			"value": 1.0,
+			"duration": 0.02,
+			"delay": 0.01,
+			"ease": ANIME_SCRIPT.EASE_LINEAR,
+		},
+	})
+	await _wait_for_tween(tween)
+	_expect(target.position == Vector2(80.0, 40.0), "Keyframes should reach the final keyframe")
+	_expect(is_equal_approx(target.modulate.a, 1.0), "Per-property timing should reach the property value")
+	target.queue_free()
+
+
+func test_tween_controls() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	var tween = ANIME_SCRIPT.to(target, {
+		"position:x": 100.0,
+		"duration": 0.12,
+		"ease": ANIME_SCRIPT.EASE_LINEAR,
+	})
+	await wait_process_frames(2)
+	tween.pause()
+	var paused_position: float = tween.get_position()
+	await wait_process_frames(2)
+	_expect(is_equal_approx(tween.get_position(), paused_position), "A tween should keep its position while paused")
+	tween.seek(0.06)
+	_expect(target.position.x > 0.0 and target.position.x < 100.0, "A tween should seek to an intermediate value")
+	tween.resume()
+	await _wait_for_tween(tween)
+	_expect(target.position.x == 100.0, "A resumed tween should reach its end")
+	tween.reverse()
+	await _wait_for_tween(tween)
+	_expect(is_zero_approx(target.position.x), "A reversed tween should return to its start")
+	tween.restart()
+	await _wait_for_tween(tween)
+	_expect(target.position.x == 100.0, "A restarted tween should replay from its start")
+	target.queue_free()
+
+
 func test_repeat_and_yoyo() -> void:
 	var target := Node2D.new()
 	add_child_autoqfree(target)
@@ -55,6 +120,21 @@ func test_repeat_and_yoyo() -> void:
 	})
 	await _wait_for_tween(tween)
 	_expect(is_zero_approx(target.position.x), "A yoyo repeat should finish at its starting value")
+	target.queue_free()
+
+
+func test_repeat_delay_and_direction() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	var tween = ANIME_SCRIPT.to(target, {
+		"position:x": 100.0,
+		"duration": 0.02,
+		"repeat": 1,
+		"repeat_delay": 0.02,
+		"direction": "alternate",
+	})
+	await _wait_for_tween(tween)
+	_expect(is_zero_approx(target.position.x), "Alternate repeat direction should finish at the start")
 	target.queue_free()
 
 
@@ -74,6 +154,31 @@ func test_target_arrays_and_stagger() -> void:
 	_expect(first.position.x == 50.0 and second.position.x == 50.0, "Target arrays should animate every target")
 	first.queue_free()
 	second.queue_free()
+
+
+func test_rich_stagger_options() -> void:
+	var first := Node2D.new()
+	var second := Node2D.new()
+	var third := Node2D.new()
+	add_child_autoqfree(first)
+	add_child_autoqfree(second)
+	add_child_autoqfree(third)
+	var tweens = ANIME_SCRIPT.to([first, second, third], {
+		"position:x": 50.0,
+		"duration": 0.02,
+		"stagger": {
+			"each": 0.01,
+			"from": "center",
+			"ease": ANIME_SCRIPT.EASE_OUT_QUAD,
+		},
+	})
+	_expect(tweens is Array and tweens.size() == 3, "Rich stagger options should create one tween per target")
+	for tween in tweens:
+		await _wait_for_tween(tween)
+	_expect(first.position.x == 50.0 and second.position.x == 50.0 and third.position.x == 50.0, "Rich stagger targets should complete")
+	first.queue_free()
+	second.queue_free()
+	third.queue_free()
 
 
 func test_context_cleanup() -> void:
@@ -202,6 +307,44 @@ func test_timeline_controls() -> void:
 	timeline.restart()
 	await _wait_for_timeline(timeline)
 	_expect(target.position.x == 100.0, "Time-scaled timeline should complete")
+	test_owner.queue_free()
+
+
+func test_timeline_options() -> void:
+	var test_owner := Node2D.new()
+	var target := Node2D.new()
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var state := {"started": 0, "completed": 0}
+	var timeline = ANIME_SCRIPT.timeline(test_owner, {
+		"defaults": {"duration": 0.02, "ease": ANIME_SCRIPT.EASE_LINEAR},
+		"repeat": 1,
+		"repeat_delay": 0.01,
+		"yoyo": true,
+		"on_start": func() -> void: state["started"] += 1,
+		"on_complete": func() -> void: state["completed"] += 1,
+	})
+	timeline.to(target, {"position:x": 100.0})
+	_expect(is_equal_approx(timeline.duration, 0.02), "Timeline defaults should configure child tween duration")
+	timeline.play()
+	await _wait_for_timeline(timeline)
+	_expect(is_zero_approx(target.position.x), "A yoyo timeline repeat should finish at its start")
+	_expect(state["started"] == 1 and state["completed"] == 1, "Timeline callbacks should fire once per playback")
+	test_owner.queue_free()
+
+
+func test_timeline_autoplay() -> void:
+	var test_owner := Node2D.new()
+	var target := Node2D.new()
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var timeline = ANIME_SCRIPT.timeline(test_owner, {
+		"defaults": {"duration": 0.02, "ease": ANIME_SCRIPT.EASE_LINEAR},
+		"autoplay": true,
+	})
+	timeline.to(target, {"position:x": 25.0})
+	await wait_process_frames(4)
+	_expect(target.position.x == 25.0, "An autoplay timeline should begin after entries are added")
 	test_owner.queue_free()
 
 

@@ -189,10 +189,9 @@ unique_name_in_owner = true
 modulate = Color(0.4, 0.85, 0.73, 1)
 layout_mode = 0
 offset_left = 320.0
-offset_top = 260.0
+offset_top = 170.0
 offset_right = 500.0019
-offset_bottom = 359.99844
-scale = Vector2(0.9, 0.9)
+offset_bottom = 269.9986
 pivot_offset = Vector2(92, 52)
 color = Color(0.4, 0.85, 0.73, 1)
 

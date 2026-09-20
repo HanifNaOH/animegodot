@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `Anime.from_to()` for explicit start and end values.
+- Keyframe arrays and per-property duration, delay, and easing options.
+- Direct tween seek, reverse, restart, reset, progress, repeat delay, and direction controls.
+- Rich stagger settings with `each`, `amount`, `from`, `grid`, `axis`, and easing support.
+- Timeline defaults, autoplay, lifecycle callbacks, repeat, repeat delay, yoyo, and direction options.
+
 ## 0.1.0 - 2026-09-13
 
 ### Added

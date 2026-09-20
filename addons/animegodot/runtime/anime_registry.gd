@@ -51,8 +51,10 @@ func register(tween: Variant, target: Object, property_paths: Array, overwrite: 
 		"tween": tween,
 		"target": weakref(target),
 	})
-	tween.completed.connect(_on_tween_finished)
-	tween.killed.connect(_on_tween_finished)
+	if not tween.completed.is_connected(_on_tween_finished):
+		tween.completed.connect(_on_tween_finished)
+	if not tween.killed.is_connected(_on_tween_finished):
+		tween.killed.connect(_on_tween_finished)
 
 
 func get_active_records() -> Array:

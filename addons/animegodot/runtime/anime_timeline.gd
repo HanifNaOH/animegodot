@@ -4,6 +4,22 @@ extends RefCounted
 const TWEEN_SCRIPT = preload("res://addons/animegodot/runtime/anime_tween.gd")
 const PROPERTY_SCRIPT = preload("res://addons/animegodot/runtime/anime_property.gd")
 const EASING_SCRIPT = preload("res://addons/animegodot/runtime/anime_easing.gd")
+const STAGGER_SCRIPT = preload("res://addons/animegodot/runtime/anime_stagger.gd")
+
+const TIMELINE_OPTIONS := [
+	&"defaults",
+	&"delay",
+	&"repeat",
+	&"loop",
+	&"repeat_delay",
+	&"yoyo",
+	&"direction",
+	&"autoplay",
+	&"on_start",
+	&"on_update",
+	&"on_complete",
+	&"on_kill",
+]
 
 signal started(timeline)
 signal updated(timeline, progress: float)
@@ -32,6 +48,7 @@ var time_scale: float = 1.0:
 		_apply_time_scale()
 
 var _defaults: Dictionary = {}
+var _options: Dictionary = {}
 var _entries: Array = []
 var _labels: Dictionary = {}
 var _cursor := 0.0
@@ -48,11 +65,31 @@ var _completed := false
 var _killed := false
 var _paused := false
 var _clock_finished := false
+var _repeat_count := 0
+var _repeat_index := 0
+var _repeat_delay := 0.0
+var _started_emitted := false
+var _on_start: Variant
+var _on_update: Variant
+var _on_complete: Variant
+var _on_kill: Variant
+var _autoplay_scheduled := false
 
 
 func _init(context_owner: Node = null, defaults: Dictionary = {}) -> void:
 	owner = context_owner
-	_defaults = defaults.duplicate(true)
+	_options = defaults.duplicate(true)
+	_defaults = _options.get(&"defaults", {}).duplicate(true) if _options.get(&"defaults", {}) is Dictionary else {}
+	for option_key in _options:
+		if StringName(option_key) not in TIMELINE_OPTIONS:
+			_defaults[option_key] = _options[option_key]
+	_on_start = _options.get(&"on_start", _options.get("on_start"))
+	_on_update = _options.get(&"on_update", _options.get("on_update"))
+	_on_complete = _options.get(&"on_complete", _options.get("on_complete"))
+	_on_kill = _options.get(&"on_kill", _options.get("on_kill"))
+	_repeat_count = _timeline_repeat_count()
+	_repeat_delay = maxf(float(_options.get(&"repeat_delay", _options.get("repeat_delay", 0.0))), 0.0)
+	_direction = _timeline_direction(0)
 	if is_instance_valid(owner):
 		owner.tree_exiting.connect(_on_owner_tree_exiting, CONNECT_ONE_SHOT)
 
@@ -115,8 +152,8 @@ func play():
 	active = true
 	_paused = false
 	_clock_finished = false
-	_emit_started()
-
+	if not _started_emitted:
+		_emit_started()
 	if duration <= 0.0:
 		for entry in _entries:
 			_start_entry(entry)
@@ -124,15 +161,22 @@ func play():
 		_finish()
 		return self
 
+	_start_cycle(start_position, maxf(float(_options.get(&"delay", _options.get("delay", 0.0))), 0.0) if is_zero_approx(start_position) else 0.0)
+	return self
+
+
+func _start_cycle(start_position: float, cycle_delay: float) -> void:
 	_clock = _create_native_tween()
 	_progress_tween = _create_native_tween()
 	if _clock == null or _progress_tween == null:
 		kill()
-		return self
+		return
 
 	var scheduled := _scheduled_entries()
 	scheduled.sort_custom(Callable(self, "_sort_scheduled_entries"))
 	var clock_position := 0.0
+	if cycle_delay > 0.0:
+		_clock.tween_interval(cycle_delay)
 	for scheduled_entry in scheduled:
 		var start_time: float = scheduled_entry["start"]
 		var entry: Dictionary = scheduled_entry["entry"]
@@ -153,6 +197,8 @@ func play():
 		_clock.tween_interval(remaining)
 	_clock.finished.connect(_on_clock_finished)
 
+	if cycle_delay > 0.0:
+		_progress_tween.tween_interval(cycle_delay)
 	var progress_duration := maxf(duration - start_position, 0.0)
 	if progress_duration > 0.0:
 		_progress_tween.tween_method(
@@ -164,7 +210,6 @@ func play():
 	else:
 		_progress_tween.tween_callback(Callable(self, "_emit_progress").bind(1.0))
 	_apply_time_scale()
-	return self
 
 
 func pause():
@@ -200,7 +245,7 @@ func resume():
 
 
 func restart():
-	_restart_internal(1)
+	_restart_internal(_timeline_direction(0))
 	return self
 
 
@@ -230,6 +275,8 @@ func kill(emit_callbacks: bool = true) -> void:
 	_stop_runtime(emit_callbacks)
 	active = false
 	_killed = true
+	if emit_callbacks:
+		_invoke(_on_kill)
 	killed.emit(self)
 
 
@@ -273,6 +320,9 @@ func _add_entry(entry: Dictionary, position: Variant):
 	_last_end = start + float(entry["duration"])
 	_cursor = maxf(_cursor, _last_end)
 	duration = _cursor
+	if bool(_options.get(&"autoplay", _options.get("autoplay", false))) and not _autoplay_scheduled and not active:
+		_autoplay_scheduled = true
+		call_deferred("_start_autoplay")
 	return self
 
 
@@ -318,12 +368,7 @@ func _resolve_position(position: Variant) -> float:
 func _tween_entry_duration(targets_value: Variant, properties: Dictionary, mode: StringName) -> float:
 	if mode == &"set":
 		return 0.0
-	var base_duration := maxf(float(_option_value(properties, &"duration", 0.0)), 0.0)
-	var repeat_count := maxi(int(_option_value(properties, &"repeat", 0)), 0)
-	var delay := maxf(float(_option_value(properties, &"delay", 0.0)), 0.0)
-	var stagger := maxf(float(_option_value(properties, &"stagger", 0.0)), 0.0)
-	var target_count := _normalize_targets(targets_value).size()
-	return delay + stagger * maxi(target_count - 1, 0) + base_duration * (repeat_count + 1)
+	return TWEEN_SCRIPT.estimate_duration(properties, _normalize_targets(targets_value).size())
 
 
 func _scheduled_entries() -> Array:
@@ -371,23 +416,22 @@ func _start_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 
 func _start_tween_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 	var targets := _normalize_targets(entry["target"])
-	var stagger := maxf(float(_option_value(entry["properties"], &"stagger", 0.0)), 0.0)
+	var stagger = _option_value(entry["properties"], &"stagger", 0.0)
 	var base_delay := maxf(float(_option_value(entry["properties"], &"delay", 0.0)), 0.0)
-	var base_duration := maxf(float(_option_value(entry["properties"], &"duration", 0.0)), 0.0)
-	var repeat_count := maxi(int(_option_value(entry["properties"], &"repeat", 0)), 0)
-	var total_duration := base_duration * (repeat_count + 1)
 	entry["handles"] = []
 	for index in targets.size():
 		var target = targets[index]
 		if target == null or not is_instance_valid(target):
 			continue
-		var target_elapsed := elapsed - base_delay - stagger * index
+		var target_delay := base_delay + STAGGER_SCRIPT.delay_for(index, targets.size(), stagger)
+		var target_elapsed := elapsed - target_delay
+		var total_duration := TWEEN_SCRIPT.estimate_duration(entry["properties"], 1)
 		if target_elapsed >= total_duration and entry["mode"] != &"set":
 			_apply_values(target, _final_values(entry, index))
 			continue
 		var properties: Dictionary = entry["properties"].duplicate(true)
-		if stagger > 0.0:
-			properties[&"delay"] = float(_option_value(properties, &"delay", 0.0)) + stagger * index
+		if target_delay > 0.0:
+			properties[&"delay"] = target_delay
 		var mode: StringName = entry["mode"]
 		if _direction < 0:
 			mode = &"to"
@@ -571,11 +615,16 @@ func _apply_time_scale() -> void:
 
 
 func _emit_started() -> void:
+	if _started_emitted:
+		return
+	_started_emitted = true
+	_invoke(_on_start)
 	started.emit(self)
 
 
 func _emit_progress(progress: float) -> void:
 	_position = progress * duration
+	_invoke(_on_update, [progress])
 	updated.emit(self, progress)
 
 
@@ -593,7 +642,16 @@ func _on_child_timeline_finished(timeline: Variant) -> void:
 
 func _finish_if_ready() -> void:
 	if _clock_finished and _active_tweens.is_empty() and _active_timelines.is_empty():
-		_finish()
+		if _repeat_index < _repeat_count:
+			_repeat_index += 1
+			_reset_entry_runtime()
+			_direction = _timeline_direction(_repeat_index)
+			_position = 0.0
+			_clock_finished = false
+			_apply_direction_start()
+			_start_cycle(0.0, _repeat_delay)
+		else:
+			_finish()
 
 
 func _finish() -> void:
@@ -603,6 +661,7 @@ func _finish() -> void:
 	_completed = true
 	_clock_finished = true
 	_position = duration
+	_invoke(_on_complete)
 	updated.emit(self, 1.0)
 	completed.emit(self)
 
@@ -651,9 +710,11 @@ func _restart_internal(direction: int) -> void:
 	_stop_runtime()
 	_reset_entry_runtime()
 	_direction = direction
+	_repeat_index = 0
 	_completed = false
 	_killed = false
 	_paused = false
+	_started_emitted = false
 	_position = 0.0
 	_apply_direction_start()
 	play()
@@ -685,3 +746,32 @@ func _apply_direction_start() -> void:
 
 func _on_owner_tree_exiting() -> void:
 	kill(false)
+
+
+func _start_autoplay() -> void:
+	_autoplay_scheduled = false
+	if not _entries.is_empty() and not active and not _completed and not _killed:
+		play()
+
+
+func _timeline_repeat_count() -> int:
+	var value = _options.get(&"repeat", _options.get("repeat", null))
+	if value == null:
+		value = _options.get(&"loop", _options.get("loop", null))
+		if value != null:
+			value = maxi(int(value) - 1, 0)
+	return maxi(int(value if value != null else 0), 0)
+
+
+func _timeline_direction(cycle_index: int) -> int:
+	var direction_name := StringName(_options.get(&"direction", _options.get("direction", &"normal")))
+	var direction := -1 if direction_name == &"reverse" or direction_name == &"alternate_reverse" else 1
+	if direction_name == &"alternate" or direction_name == &"alternate_reverse" or bool(_options.get(&"yoyo", _options.get("yoyo", false))):
+		if cycle_index % 2 == 1:
+			direction *= -1
+	return direction
+
+
+func _invoke(callback: Variant, arguments: Array = []) -> void:
+	if callback is Callable and callback.is_valid():
+		callback.callv(arguments)

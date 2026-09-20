@@ -58,6 +58,10 @@ static func from(target: Variant, properties: Dictionary) -> Variant:
 	return _context_for(target).from(target, properties)
 
 
+static func from_to(target: Variant, from_properties: Dictionary, to_properties: Dictionary) -> Variant:
+	return _context_for(target).from_to(target, from_properties, to_properties)
+
+
 static func set_value(target: Variant, properties: Dictionary) -> Variant:
 	return _context_for(target).set_value(target, properties)
 

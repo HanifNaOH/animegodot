@@ -79,7 +79,7 @@ Add:
 
 Keep the options dictionary separate from animated properties so reserved keys cannot be written to the target.
 
-Phase 2 currently supports easing, callbacks, repeats, yoyo playback, target arrays, and staggered starts.
+Phase 2 currently supports easing, callbacks, repeats, repeat delays, direction modes, yoyo playback, explicit `from_to()` ranges, keyframe arrays, per-property timing, target arrays, and configurable staggered starts.
 
 ### 3. Timeline system (complete)
 
@@ -93,7 +93,7 @@ Implement `anime_timeline.gd` with:
 - Pause, resume, reverse, restart, seek, and time scale.
 - Timeline completion and interruption signals.
 
-Implemented with `AnimeTimeline`; use `invoke()` for callbacks because Godot reserves `Object.call()`.
+Implemented with `AnimeTimeline`; use `invoke()` for callbacks because Godot reserves `Object.call()`. Timeline defaults, autoplay, lifecycle callbacks, repeat delays, yoyo playback, and direction modes are also supported.
 
 Use native Tween chains where possible. Add a small scheduler only where labels and relative positions require it.
 

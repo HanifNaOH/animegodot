@@ -4,6 +4,7 @@ extends RefCounted
 const TWEEN_SCRIPT = preload("res://addons/animegodot/runtime/anime_tween.gd")
 const TIMELINE_SCRIPT = preload("res://addons/animegodot/runtime/anime_timeline.gd")
 const MOTION_PATH_SCRIPT = preload("res://addons/animegodot/runtime/anime_motion_path_tween.gd")
+const STAGGER_SCRIPT = preload("res://addons/animegodot/runtime/anime_stagger.gd")
 
 signal disposed(context)
 
@@ -27,6 +28,25 @@ func to(target: Variant, properties: Dictionary) -> Variant:
 
 func from(target: Variant, properties: Dictionary) -> Variant:
 	return _create_batch(target, properties, &"from")
+
+
+func from_to(target: Variant, from_properties: Dictionary, to_properties: Dictionary) -> Variant:
+	if _disposed:
+		return [] if target is Array else null
+	var targets := _normalize_targets(target)
+	var created: Array = []
+	for item in targets:
+		if item == null or not is_instance_valid(item):
+			continue
+		var tween = TWEEN_SCRIPT.create_from_to(item, from_properties, to_properties)
+		_tweens.append(tween)
+		tween.completed.connect(_on_tween_finished)
+		tween.killed.connect(_on_tween_finished)
+		tween.play()
+		created.append(tween)
+	if target is Array:
+		return created
+	return created[0] if not created.is_empty() else null
 
 
 func set_value(target: Variant, properties: Dictionary) -> Variant:
@@ -83,14 +103,15 @@ func _create_batch(targets_value: Variant, properties: Dictionary, mode: StringN
 
 	var targets := _normalize_targets(targets_value)
 	var created: Array = []
-	var stagger := maxf(float(_option_value(properties, &"stagger", 0.0)), 0.0)
+	var base_delay := maxf(float(_option_value(properties, &"delay", 0.0)), 0.0)
 	for index in targets.size():
 		var target = targets[index]
 		if target == null or not is_instance_valid(target):
 			continue
 		var target_properties := properties.duplicate(true)
-		if stagger > 0.0:
-			target_properties[&"delay"] = float(_option_value(target_properties, &"delay", 0.0)) + stagger * index
+		var stagger_delay := STAGGER_SCRIPT.delay_for(index, targets.size(), _option_value(properties, &"stagger", 0.0))
+		if base_delay > 0.0 or stagger_delay > 0.0:
+			target_properties[&"delay"] = base_delay + stagger_delay
 		var tween = TWEEN_SCRIPT.create(target, target_properties, mode)
 		_tweens.append(tween)
 		tween.completed.connect(_on_tween_finished)
