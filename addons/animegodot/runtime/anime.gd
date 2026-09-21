@@ -9,6 +9,8 @@ const ANIMATION_SCRIPT = preload("res://addons/animegodot/runtime/anime_animatio
 const OVERWRITE_NONE := &"none"
 const OVERWRITE_AUTO := &"auto"
 const OVERWRITE_ALL := &"all"
+const TWEEN_PROCESS_IDLE := Tween.TWEEN_PROCESS_IDLE
+const TWEEN_PROCESS_PHYSICS := Tween.TWEEN_PROCESS_PHYSICS
 
 const EASE_LINEAR := &"linear"
 const EASE_IN_SINE := &"in_sine"
@@ -70,8 +72,8 @@ static func motion_path(target: Node, path: Variant, options: Dictionary = {}):
 	return _context_for(target).motion_path(target, path, options)
 
 
-static func interpolate(from_value: Variant, to_value: Variant, weight: float) -> Variant:
-	return INTERPOLATION_SCRIPT.value(from_value, to_value, weight)
+static func interpolate(from_value: Variant, to_value: Variant, weight: float, interpolator: Variant = null) -> Variant:
+	return INTERPOLATION_SCRIPT.value(from_value, to_value, weight, interpolator)
 
 
 static func bezier(from_value: Variant, control_one: Variant, control_two: Variant, to_value: Variant, weight: float) -> Variant:

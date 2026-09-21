@@ -5,7 +5,7 @@ const OVERWRITE_NONE := &"none"
 const OVERWRITE_AUTO := &"auto"
 const OVERWRITE_ALL := &"all"
 
-var _records: Array = []
+var _records: Array[Dictionary] = []
 
 
 static func get_instance():

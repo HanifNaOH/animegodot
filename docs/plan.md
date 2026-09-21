@@ -168,7 +168,7 @@ addons/animegodot/
 └── README.md
 ```
 
-## Definition Of Done For Version 0.1
+## Definition Of Done For Version 1.0
 
 - The add-on can be enabled without editor errors.
 - A script can animate a Node property with one concise call.

@@ -9,6 +9,8 @@ const RESERVED_OPTIONS := [
 	&"repeat",
 	&"yoyo",
 	&"stagger",
+	&"keyframes",
+	&"interpolate",
 	&"overwrite",
 	&"speed_scale",
 	&"on_start",

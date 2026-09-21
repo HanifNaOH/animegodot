@@ -6,13 +6,13 @@ const TIMELINE_SCRIPT = preload("res://addons/animegodot/runtime/anime_timeline.
 const MOTION_PATH_SCRIPT = preload("res://addons/animegodot/runtime/anime_motion_path_tween.gd")
 const STAGGER_SCRIPT = preload("res://addons/animegodot/runtime/anime_stagger.gd")
 
-signal disposed(context)
+signal disposed(context: AnimeContext)
 
 var owner: Node
 
-var _tweens: Array = []
-var _motion_path_tweens: Array = []
-var _timelines: Array = []
+var _tweens: Array[AnimeTween] = []
+var _motion_path_tweens: Array[AnimeMotionPathTween] = []
+var _timelines: Array[AnimeTimeline] = []
 var _disposed := false
 
 

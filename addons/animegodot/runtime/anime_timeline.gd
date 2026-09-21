@@ -14,6 +14,8 @@ const TIMELINE_OPTIONS := [
 	&"repeat_delay",
 	&"yoyo",
 	&"direction",
+	&"ignore_time_scale",
+	&"process_mode",
 	&"autoplay",
 	&"on_start",
 	&"on_update",
@@ -21,18 +23,28 @@ const TIMELINE_OPTIONS := [
 	&"on_kill",
 ]
 
-signal started(timeline)
-signal updated(timeline, progress: float)
-signal completed(timeline)
-signal killed(timeline)
+signal started(timeline: AnimeTimeline)
+signal updated(timeline: AnimeTimeline, progress: float)
+signal completed(timeline: AnimeTimeline)
+signal killed(timeline: AnimeTimeline)
 
 const RESERVED_OPTIONS := [
 	&"duration",
 	&"delay",
 	&"ease",
 	&"repeat",
+	&"loop",
+	&"repeat_delay",
 	&"yoyo",
+	&"direction",
 	&"stagger",
+	&"keyframes",
+	&"interpolate",
+	&"overwrite",
+	&"speed_scale",
+	&"ignore_time_scale",
+	&"process_mode",
+	&"autoplay",
 	&"on_start",
 	&"on_update",
 	&"on_complete",
@@ -49,15 +61,15 @@ var time_scale: float = 1.0:
 
 var _defaults: Dictionary = {}
 var _options: Dictionary = {}
-var _entries: Array = []
+var _entries: Array[Dictionary] = []
 var _labels: Dictionary = {}
 var _cursor := 0.0
 var _last_start := 0.0
 var _last_end := 0.0
 var _clock: Tween
 var _progress_tween: Tween
-var _active_tweens: Array = []
-var _active_timelines: Array = []
+var _active_tweens: Array[AnimeTween] = []
+var _active_timelines: Array[AnimeTimeline] = []
 var _initial_captured := false
 var _direction := 1
 var _position := 0.0
@@ -307,6 +319,7 @@ func _add_tween_entry(target: Variant, properties: Dictionary, mode: StringName,
 		"handles": [],
 		"initial_values": [],
 		"end_values": [],
+		"track_data": [],
 	}
 	entry["duration"] = _tween_entry_duration(target, merged_properties, mode)
 	return _add_entry(entry, position)
@@ -430,6 +443,9 @@ func _start_tween_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 			_apply_values(target, _final_values(entry, index))
 			continue
 		var properties: Dictionary = entry["properties"].duplicate(true)
+		for option_key in [&"ignore_time_scale", &"process_mode"]:
+			if not properties.has(option_key) and _options.has(option_key):
+				properties[option_key] = _options[option_key]
 		if target_delay > 0.0:
 			properties[&"delay"] = target_delay
 		var mode: StringName = entry["mode"]
@@ -459,8 +475,13 @@ func _start_tween_entry(entry: Dictionary, elapsed: float = 0.0) -> void:
 func _final_values(entry: Dictionary, index: int) -> Dictionary:
 	if _direction < 0:
 		return entry["initial_values"][index]
-	if bool(_option_value(entry["properties"], &"yoyo", false)) and int(_option_value(entry["properties"], &"repeat", 0)) % 2 == 1:
-		return entry["initial_values"][index]
+	var track_data: Dictionary = entry["track_data"][index]
+	if not track_data.is_empty():
+		var values: Dictionary = {}
+		for property_path in track_data:
+			var track: Dictionary = track_data[property_path]
+			values[property_path] = TWEEN_SCRIPT.sample_track(track, float(track["total_duration"]))
+		return values
 	return entry["end_values"][index]
 
 
@@ -475,18 +496,15 @@ func _initial_capture() -> void:
 			continue
 		var targets := _normalize_targets(entry["target"])
 		for target in targets:
+			var track_builder = TWEEN_SCRIPT.create(target, entry["properties"], entry["mode"])
+			var track_data: Dictionary = track_builder.get_track_data()
+			entry["track_data"].append(track_data)
 			var initial: Dictionary = {}
 			var ending: Dictionary = {}
-			for property_path in _animated_properties(entry["properties"]):
-				if not is_instance_valid(target) or not PROPERTY_SCRIPT.exists(target, property_path):
-					continue
-				var current_value = PROPERTY_SCRIPT.read(target, property_path)
-				if entry["mode"] == &"from":
-					initial[property_path] = entry["properties"][property_path]
-					ending[property_path] = current_value
-				else:
-					initial[property_path] = current_value
-					ending[property_path] = entry["properties"][property_path]
+			for property_path in track_data:
+				var track: Dictionary = track_data[property_path]
+				initial[property_path] = track["values"][0]
+				ending[property_path] = track["values"].back()
 			entry["initial_values"].append(initial)
 			entry["end_values"].append(ending)
 	_initial_captured = true
@@ -503,66 +521,16 @@ func _apply_at(position: float) -> void:
 		if entry["type"] == &"call":
 			continue
 		var targets := _normalize_targets(entry["target"])
-		var stagger := maxf(float(_option_value(entry["properties"], &"stagger", 0.0)), 0.0)
-		var base_delay := maxf(float(_option_value(entry["properties"], &"delay", 0.0)), 0.0)
-		var base_duration := maxf(float(_option_value(entry["properties"], &"duration", 0.0)), 0.0)
-		var repeat_count := maxi(int(_option_value(entry["properties"], &"repeat", 0)), 0)
+		var stagger = _option_value(entry["properties"], &"stagger", 0.0)
 		for index in targets.size():
 			var target = targets[index]
 			if target == null or not is_instance_valid(target):
 				continue
-			var local := position - entry_start - base_delay - stagger * index
-			var initial_values: Dictionary = entry["initial_values"][index]
-			var end_values: Dictionary = entry["end_values"][index]
-			if entry["mode"] == &"set":
-				if position >= entry_start:
-					_apply_values(target, end_values)
-				continue
-			if base_duration <= 0.0:
-				if local >= 0.0:
-					_apply_values(target, end_values)
-				continue
-			if local <= 0.0:
-				_apply_values(target, initial_values)
-				continue
-			var total_duration := base_duration * (repeat_count + 1)
-			if local >= total_duration:
-				_apply_values(target, end_values)
-				continue
-			var cycle_index := mini(int(floor(local / base_duration)), repeat_count)
-			var cycle_position := fmod(local, base_duration)
-			var is_reversed := bool(_option_value(entry["properties"], &"yoyo", false)) and cycle_index % 2 == 1
-			var cycle_start: Dictionary = end_values if is_reversed else initial_values
-			var cycle_end: Dictionary = initial_values if is_reversed else end_values
-			var easing := EASING_SCRIPT.resolve(_option_value(entry["properties"], &"ease", &"out_quad"))
-			for property_path in cycle_start:
-				var value = _interpolate(cycle_start[property_path], cycle_end[property_path], cycle_position, base_duration, easing)
-				PROPERTY_SCRIPT.write(target, property_path, value)
-
-
-func _interpolate(initial_value: Variant, end_value: Variant, elapsed: float, total: float, easing: Dictionary) -> Variant:
-		if typeof(initial_value) != typeof(end_value):
-			return end_value if elapsed >= total else initial_value
-		if initial_value is float or initial_value is int or initial_value is Vector2 or initial_value is Vector3 or initial_value is Vector4 or initial_value is Color:
-			return Tween.interpolate_value(
-				initial_value,
-				end_value - initial_value,
-				elapsed,
-				total,
-				easing["transition"],
-				easing["ease"]
-			)
-		if initial_value is Quaternion:
-			var weight := float(Tween.interpolate_value(
-				0.0,
-				1.0,
-				elapsed,
-				total,
-				easing["transition"],
-				easing["ease"]
-			))
-			return initial_value.slerp(end_value, weight)
-		return end_value if elapsed >= total else initial_value
+			var target_delay := STAGGER_SCRIPT.delay_for(index, targets.size(), stagger)
+			var local := position - entry_start - target_delay
+			var track_data: Dictionary = entry["track_data"][index]
+			for property_path in track_data:
+				PROPERTY_SCRIPT.write(target, property_path, TWEEN_SCRIPT.sample_track(track_data[property_path], local))
 
 
 func _apply_values(target: Object, values: Dictionary) -> void:
@@ -595,12 +563,16 @@ func _option_value(properties: Dictionary, option_name: StringName, default_valu
 
 
 func _create_native_tween() -> Tween:
+	var native_tween: Tween
 	if is_instance_valid(owner):
-		return owner.create_tween()
-	var main_loop := Engine.get_main_loop()
-	if main_loop is SceneTree:
-		return main_loop.create_tween()
-	return null
+		native_tween = owner.create_tween()
+	else:
+		var main_loop := Engine.get_main_loop()
+		if main_loop is SceneTree:
+			native_tween = main_loop.create_tween()
+	if native_tween == null:
+		return null
+	return TWEEN_SCRIPT.configure_native_tween(native_tween, _options)
 
 
 func _apply_time_scale() -> void:

@@ -82,6 +82,60 @@ func test_keyframes_and_per_property_options() -> void:
 	target.queue_free()
 
 
+func test_dynamic_interpolation_and_custom_interpolator() -> void:
+	var midpoint_rect: Rect2 = ANIME_SCRIPT.interpolate(
+		Rect2(Vector2.ZERO, Vector2(10.0, 20.0)),
+		Rect2(Vector2(20.0, 40.0), Vector2(30.0, 50.0)),
+		0.5
+	)
+	_expect(midpoint_rect.position == Vector2(10.0, 20.0), "Rect2 positions should interpolate dynamically")
+	_expect(midpoint_rect.size == Vector2(20.0, 35.0), "Rect2 sizes should interpolate dynamically")
+
+	var midpoint_vector: Vector2i = ANIME_SCRIPT.interpolate(Vector2i.ZERO, Vector2i(5, 9), 0.5)
+	_expect(midpoint_vector == Vector2i(3, 5), "Integer vectors should interpolate with integer rounding")
+	var midpoint_transform: Transform2D = ANIME_SCRIPT.interpolate(
+		Transform2D(0.0, Vector2.ZERO),
+		Transform2D(0.0, Vector2(20.0, 40.0)),
+		0.5
+	)
+	_expect(midpoint_transform.origin == Vector2(10.0, 20.0), "Transforms should interpolate dynamically")
+
+	var midpoint_array: Array = ANIME_SCRIPT.interpolate(
+		[0.0, Vector2.ZERO],
+		[10.0, Vector2(10.0, 20.0)],
+		0.5
+	)
+	_expect(is_equal_approx(float(midpoint_array[0]), 5.0), "Arrays should interpolate numeric elements")
+	_expect(midpoint_array[1] == Vector2(5.0, 10.0), "Arrays should interpolate nested elements")
+	var midpoint_dictionary: Dictionary = ANIME_SCRIPT.interpolate(
+		{"value": 0.0},
+		{"value": 10.0},
+		0.5
+	)
+	_expect(is_equal_approx(float(midpoint_dictionary["value"]), 5.0), "Dictionaries should interpolate values")
+
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	var state := {"calls": 0}
+	var custom_interpolator := func(from_value: Variant, to_value: Variant, weight: float) -> Variant:
+		state["calls"] += 1
+		return Vector2(
+			lerpf(from_value.x, to_value.x, weight * weight),
+			lerpf(from_value.y, to_value.y, weight * weight)
+		)
+	var tween = ANIME_SCRIPT.to(target, {
+		"position": {
+			"value": Vector2(20.0, 10.0),
+			"duration": 0.03,
+			"interpolate": custom_interpolator,
+		},
+	})
+	await _wait_for_tween(tween)
+	_expect(state["calls"] > 0, "Custom interpolators should be called for tween tracks")
+	_expect(target.position == Vector2(20.0, 10.0), "Custom interpolators should reach the final value")
+	target.queue_free()
+
+
 func test_tween_controls() -> void:
 	var target := Node2D.new()
 	add_child_autoqfree(target)
@@ -331,6 +385,77 @@ func test_timeline_options() -> void:
 	_expect(is_zero_approx(target.position.x), "A yoyo timeline repeat should finish at its start")
 	_expect(state["started"] == 1 and state["completed"] == 1, "Timeline callbacks should fire once per playback")
 	test_owner.queue_free()
+
+
+func test_timeline_uses_dynamic_track_data() -> void:
+	var test_owner := Node2D.new()
+	var target := Node2D.new()
+	test_owner.add_child(target)
+	add_child_autoqfree(test_owner)
+	var timeline = ANIME_SCRIPT.timeline(test_owner)
+	timeline.to(target, {
+		"position": {
+			"keyframes": [Vector2(40.0, 10.0), Vector2(80.0, 20.0)],
+			"duration": 0.04,
+			"ease": ANIME_SCRIPT.EASE_LINEAR,
+		},
+	})
+	timeline.play()
+	await _wait_for_timeline(timeline)
+	_expect(target.position == Vector2(80.0, 20.0), "Timelines should finish dynamic keyframe tracks")
+	timeline.seek(0.02)
+	_expect(target.position == Vector2(40.0, 10.0), "Timeline seek should sample dynamic keyframe tracks")
+	test_owner.queue_free()
+
+
+func test_native_tween_process_options() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	var previous_time_scale := Engine.time_scale
+	Engine.time_scale = 0.0
+	var _ignored_tween = ANIME_SCRIPT.to(target, {
+		"position:x": 40.0,
+		"duration": 0.03,
+		"ignore_time_scale": true,
+	})
+	await wait_process_frames(4)
+	_expect(target.position.x == 40.0, "Ignore-time-scale tweens should run while Engine.time_scale is zero")
+	Engine.time_scale = previous_time_scale
+
+	var physics_tween = ANIME_SCRIPT.to(target, {
+		"position:y": 25.0,
+		"duration": 0.03,
+		"process_mode": ANIME_SCRIPT.TWEEN_PROCESS_PHYSICS,
+	})
+	await _wait_for_tween(physics_tween)
+	_expect(target.position.y == 25.0, "Physics-process tweens should complete on physics frames")
+	target.queue_free()
+
+
+func test_motion_path_controls() -> void:
+	var target := Node2D.new()
+	add_child_autoqfree(target)
+	var curve := Curve2D.new()
+	curve.add_point(Vector2.ZERO)
+	curve.add_point(Vector2(100.0, 0.0))
+	var path_tween = ANIME_SCRIPT.motion_path(target, curve, {"duration": 0.12})
+	await wait_process_frames(2)
+	path_tween.pause()
+	var paused_position: float = path_tween.get_position()
+	await wait_process_frames(2)
+	_expect(is_equal_approx(path_tween.get_position(), paused_position), "A motion-path tween should pause its position")
+	path_tween.seek(0.06)
+	_expect(target.position.x > 0.0 and target.position.x < 100.0, "A motion-path tween should seek to an intermediate position")
+	path_tween.resume()
+	await _wait_for_tween(path_tween)
+	_expect(is_equal_approx(target.position.x, 100.0), "A resumed motion-path tween should reach its endpoint")
+	path_tween.reverse()
+	await _wait_for_tween(path_tween)
+	_expect(is_zero_approx(target.position.x), "A reversed motion-path tween should return to its start")
+	path_tween.restart()
+	await _wait_for_tween(path_tween)
+	_expect(is_equal_approx(target.position.x, 100.0), "A restarted motion-path tween should replay")
+	target.queue_free()
 
 
 func test_timeline_autoplay() -> void:

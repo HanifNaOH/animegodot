@@ -6,10 +6,10 @@ const PROPERTY_SCRIPT = preload("res://addons/animegodot/runtime/anime_property.
 const REGISTRY_SCRIPT = preload("res://addons/animegodot/runtime/anime_registry.gd")
 const STAGGER_SCRIPT = preload("res://addons/animegodot/runtime/anime_stagger.gd")
 
-signal started(tween)
-signal updated(tween, progress: float)
-signal completed(tween)
-signal killed(tween)
+signal started(tween: AnimeTween)
+signal updated(tween: AnimeTween, progress: float)
+signal completed(tween: AnimeTween)
+signal killed(tween: AnimeTween)
 
 const DEFAULT_OVERWRITE := &"auto"
 const RESERVED_OPTIONS := [
@@ -23,8 +23,11 @@ const RESERVED_OPTIONS := [
 	&"direction",
 	&"stagger",
 	&"keyframes",
+	&"interpolate",
 	&"overwrite",
 	&"speed_scale",
+	&"ignore_time_scale",
+	&"process_mode",
 	&"autoplay",
 	&"on_start",
 	&"on_update",
@@ -88,7 +91,7 @@ static func estimate_duration(properties: Dictionary, target_count: int = 1) -> 
 
 
 static func _is_track_config(value: Dictionary) -> bool:
-	for key in [&"value", &"to", &"keyframes", &"duration", &"delay", &"ease", &"repeat", &"loop", &"repeat_delay", &"yoyo", &"direction"]:
+	for key in [&"value", &"to", &"keyframes", &"interpolate", &"duration", &"delay", &"ease", &"repeat", &"loop", &"repeat_delay", &"yoyo", &"direction"]:
 		if value.has(key):
 			return true
 	return false
@@ -114,6 +117,22 @@ static func _repeat_count(config: Dictionary, properties: Dictionary) -> int:
 	if value == null and properties.has(&"loop") and properties[&"loop"] is int:
 		value = maxi(int(properties[&"loop"]) - 1, 0)
 	return maxi(int(value if value != null else 0), 0)
+
+
+static func configure_native_tween(native_tween: Tween, options: Dictionary) -> Tween:
+	var ignore_time_scale = options.get(&"ignore_time_scale", options.get("ignore_time_scale", null))
+	if ignore_time_scale != null:
+		native_tween.set_ignore_time_scale(bool(ignore_time_scale))
+	var process_mode = options.get(&"process_mode", options.get("process_mode", null))
+	if process_mode is String or process_mode is StringName:
+		match StringName(process_mode):
+			&"physics":
+				native_tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+			&"idle":
+				native_tween.set_process_mode(Tween.TWEEN_PROCESS_IDLE)
+	elif process_mode is int:
+		native_tween.set_process_mode(int(process_mode))
+	return native_tween
 
 
 func _configure(target: Object, properties: Dictionary, mode: StringName) -> void:
@@ -194,12 +213,17 @@ func _build_tracks(target: Object) -> void:
 			"repeat": repeat_count,
 			"repeat_delay": repeat_delay,
 			"ease": config.get(&"ease", _options.get(&"ease", &"out_quad")),
+			"interpolator": config.get(&"interpolate", _options.get(&"interpolate", null)),
 			"yoyo": bool(config.get(&"yoyo", _options.get(&"yoyo", false))),
 			"direction": StringName(config.get(&"direction", _options.get(&"direction", &"normal"))),
 		}
 		track["total_duration"] = delay + track_duration * (repeat_count + 1) + repeat_delay * repeat_count
 		_tracks[property_path] = track
 		duration = maxf(duration, float(track["total_duration"]))
+
+
+func get_track_data() -> Dictionary:
+	return _tracks.duplicate(true)
 
 
 func play():
@@ -360,12 +384,16 @@ func get_progress() -> float:
 
 
 func _create_native_tween(target: Object) -> Tween:
+	var native_tween: Tween
 	if target is Node and target.is_inside_tree():
-		return target.create_tween()
-	var main_loop := Engine.get_main_loop()
-	if main_loop is SceneTree:
-		return main_loop.create_tween()
-	return null
+		native_tween = target.create_tween()
+	else:
+		var main_loop := Engine.get_main_loop()
+		if main_loop is SceneTree:
+			native_tween = main_loop.create_tween()
+	if native_tween == null:
+		return null
+	return configure_native_tween(native_tween, _options)
 
 
 func _connect_target_lifecycle(target: Object) -> void:
@@ -406,18 +434,18 @@ func _apply_at(position: float) -> void:
 	if target == null:
 		return
 	for property_path in _tracks:
-		PROPERTY_SCRIPT.write(target, property_path, _sample_track(_tracks[property_path], position))
+		PROPERTY_SCRIPT.write(target, property_path, sample_track(_tracks[property_path], position))
 
 
-func _sample_track(track: Dictionary, position: float) -> Variant:
+static func sample_track(track: Dictionary, position: float) -> Variant:
 	var values: Array = track["values"]
 	var delay: float = track["delay"]
 	var cycle_duration: float = track["duration"]
 	var repeat_count: int = track["repeat"]
 	var repeat_delay: float = track["repeat_delay"]
 	if position >= float(track["total_duration"]):
-		var final_reversed := _is_reversed(track, repeat_count)
-		return _sample_keyframes(values, 0.0 if final_reversed else cycle_duration, cycle_duration, track["ease"])
+		var final_reversed := is_reversed(track, repeat_count)
+		return sample_keyframes(values, 0.0 if final_reversed else cycle_duration, cycle_duration, track["ease"], track["interpolator"])
 	if position <= delay or is_zero_approx(cycle_duration):
 		return values[0]
 	var elapsed := position - delay
@@ -426,13 +454,13 @@ func _sample_track(track: Dictionary, position: float) -> Variant:
 	var cycle_position := fmod(elapsed, cycle_period)
 	if cycle_position >= cycle_duration:
 		cycle_position = cycle_duration
-	var reversed := _is_reversed(track, cycle_index)
+	var reversed := is_reversed(track, cycle_index)
 	if reversed:
 		cycle_position = cycle_duration - cycle_position
-	return _sample_keyframes(values, cycle_position, cycle_duration, track["ease"])
+	return sample_keyframes(values, cycle_position, cycle_duration, track["ease"], track["interpolator"])
 
 
-func _is_reversed(track: Dictionary, cycle_index: int) -> bool:
+static func is_reversed(track: Dictionary, cycle_index: int) -> bool:
 	var direction: StringName = track["direction"]
 	if direction == &"reverse":
 		return true
@@ -443,7 +471,7 @@ func _is_reversed(track: Dictionary, cycle_index: int) -> bool:
 	return false
 
 
-func _sample_keyframes(values: Array, position: float, total: float, ease_value: Variant) -> Variant:
+static func sample_keyframes(values: Array, position: float, total: float, ease_value: Variant, interpolator: Variant = null) -> Variant:
 	if values.size() < 2 or is_zero_approx(total):
 		return values.back()
 	var segment_count := values.size() - 1
@@ -459,23 +487,12 @@ func _sample_keyframes(values: Array, position: float, total: float, ease_value:
 		easing["transition"],
 		easing["ease"]
 	))
-	return _interpolate(values[segment_index], values[segment_index + 1], weight)
-
-
-func _interpolate(from_value: Variant, to_value: Variant, weight: float) -> Variant:
-	if from_value is float or from_value is int:
-		return lerpf(float(from_value), float(to_value), weight)
-	if from_value is Vector2:
-		return from_value.lerp(to_value, weight)
-	if from_value is Vector3:
-		return from_value.lerp(to_value, weight)
-	if from_value is Vector4:
-		return from_value.lerp(to_value, weight)
-	if from_value is Color:
-		return from_value.lerp(to_value, weight)
-	if from_value is Quaternion:
-		return from_value.slerp(to_value, weight)
-	return to_value if weight >= 1.0 else from_value
+	return AnimeInterpolation.value(
+		values[segment_index],
+		values[segment_index + 1],
+		weight,
+		interpolator
+	)
 
 
 func _on_driver_position(position: float) -> void:
@@ -510,9 +527,9 @@ func _apply_final_state() -> void:
 		return
 	for property_path in _tracks:
 		var track: Dictionary = _tracks[property_path]
-		var final_reversed := _is_reversed(track, int(track["repeat"]))
+		var final_reversed := is_reversed(track, int(track["repeat"]))
 		var final_position := 0.0 if final_reversed else float(track["duration"])
-		PROPERTY_SCRIPT.write(target, property_path, _sample_keyframes(track["values"], final_position, track["duration"], track["ease"]))
+		PROPERTY_SCRIPT.write(target, property_path, sample_keyframes(track["values"], final_position, track["duration"], track["ease"], track["interpolator"]))
 
 
 func _emit_started() -> void:

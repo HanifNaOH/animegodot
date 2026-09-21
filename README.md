@@ -75,7 +75,37 @@ Anime.to($Panel, {
 })
 ```
 
+AnimeGodot interpolates numbers, integer and floating-point vectors, rectangles, colors, quaternions, planes, AABBs, transforms, arrays, and dictionaries. Discrete values such as strings, booleans, and objects switch at the end of the segment. Custom values can provide an `interpolate` Callable:
+
+```gdscript
+Anime.to($Target, {
+    "position": {
+        "value": Vector2(300, 120),
+        "duration": 0.5,
+        "interpolate": func(from_value, to_value, weight):
+            var curved_weight := weight * weight
+            return from_value.lerp(to_value, curved_weight),
+    },
+})
+```
+
 Tween handles support `pause()`, `resume()`, `seek(seconds)`, `reverse()`, `restart()`, `reset()`, `kill()`, and `get_progress()`. Repeats support `repeat_delay` and directions such as `normal`, `reverse`, and `alternate`.
+
+Native Tween scheduling options are available for pause-menu UI and physics-synchronized motion:
+
+```gdscript
+Anime.to($PausePanel, {
+    "position:y": 120.0,
+    "duration": 0.25,
+    "ignore_time_scale": true,
+})
+
+Anime.to($PhysicsBody, {
+    "global_position": target_position,
+    "duration": 0.2,
+    "process_mode": Anime.TWEEN_PROCESS_PHYSICS,
+})
+```
 
 Target arrays support richer stagger settings:
 
@@ -117,6 +147,8 @@ Anime.to($Sprite, {
     "duration": 0.5,
 })
 ```
+
+Motion-path handles support `pause()`, `resume()`, `seek(seconds)`, `reverse()`, `restart()`, `get_position()`, and `get_progress()`.
 
 The editor dock provides AnimationPlayer preview, pause, reverse, stop, scrubbing, runtime inspection, and reusable `.tres` animation export.
 

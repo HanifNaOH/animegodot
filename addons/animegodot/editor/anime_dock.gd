@@ -22,6 +22,7 @@ func initialize(interface: Variant) -> void:
 
 
 func _ready() -> void:
+	set_process(true)
 	_build_ui()
 	if editor_interface != null:
 		_refresh_selection_connection()
@@ -185,6 +186,7 @@ func _on_preview() -> void:
 		return
 	_animation_player.play(animation_name)
 	_status_label.text = "Previewing %s" % animation_name
+	_update_playback_state()
 
 
 func _on_pause() -> void:
@@ -202,6 +204,7 @@ func _on_reverse() -> void:
 		return
 	_animation_player.play(animation_name, -1.0, -1.0, true)
 	_status_label.text = "Previewing %s in reverse." % animation_name
+	_update_playback_state()
 
 
 func _on_stop() -> void:
@@ -215,16 +218,37 @@ func _on_stop() -> void:
 func _on_scrub_changed(value: float) -> void:
 	if _updating_slider or _animation_player == null:
 		return
+	var animation_name := _selected_animation_name()
+	if animation_name.is_empty():
+		return
+	if _animation_player.current_animation != animation_name:
+		_animation_player.play(animation_name)
 	_animation_player.seek(value, true)
 	_animation_player.pause()
 	_status_label.text = "Preview scrubbed."
+	_update_playback_state()
 
 
 func _update_playback_state() -> void:
 	if _animation_player == null or _scrub_slider == null:
 		return
-	var length := _animation_player.current_animation_length
-	var position := _animation_player.current_animation_position
+	var current_name := _animation_player.current_animation
+	var assigned_name := _animation_player.assigned_animation
+	var playback_name: StringName = current_name if not current_name.is_empty() else assigned_name
+	var length := 0.0
+	var position := 0.0
+	if not playback_name.is_empty() and _animation_player.has_animation_library(&""):
+		var playback_animation := _animation_player.get_animation_library(&"").get_animation(playback_name)
+		if playback_animation != null:
+			length = playback_animation.length
+	if _animation_player.is_playing() or _animation_player.is_animation_active():
+		position = _animation_player.current_animation_position
+	else:
+		var selected_name := _selected_animation_name()
+		if playback_name.is_empty() and not selected_name.is_empty() and _animation_player.has_animation_library(&""):
+			var selected_animation := _animation_player.get_animation_library(&"").get_animation(selected_name)
+			if selected_animation != null:
+				length = selected_animation.length
 	_updating_slider = true
 	_scrub_slider.max_value = maxf(length, 0.0)
 	_scrub_slider.value = clampf(position, 0.0, _scrub_slider.max_value)

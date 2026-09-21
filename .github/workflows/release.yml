@@ -1,0 +1,78 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run AnimeGodot tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: "4.7.1"
+          use-dotnet: false
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Run GUT tests
+        run: godot --headless --path . --script res://addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json -gexit
+
+  release:
+    name: Package and publish release
+    needs: test
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          VERSION="$(tr -d '\r\n' < VERSION)"
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION must contain a semantic version, got '${VERSION}'"
+            exit 1
+          fi
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            if [ "${TAG_VERSION}" != "${VERSION}" ]; then
+              echo "Tag ${GITHUB_REF_NAME} does not match VERSION ${VERSION}"
+              exit 1
+            fi
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "zip_name=animegodot-v${VERSION}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Package add-on
+        run: |
+          mkdir -p dist/addons
+          cp -R addons/animegodot dist/addons/animegodot
+          cp LICENSE README.md CHANGELOG.md VERSION dist/
+          cd dist
+          zip -r "../${{ steps.version.outputs.zip_name }}" addons LICENSE README.md CHANGELOG.md VERSION
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag_name }}
+          files: ${{ steps.version.outputs.zip_name }}
+          generate_release_notes: true
