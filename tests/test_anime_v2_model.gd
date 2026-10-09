@@ -168,7 +168,12 @@ func test_node2d_accessors_are_typed_and_share_rotation_identity() -> void:
 		position_track.accessor.get_native_path(target) == NodePath("position"),
 		"Node2D position should provide its native path internally"
 	)
-	_expect(not NODE_2D_SCRIPT.position_to(Vector2.ONE).attach_to(Control.new()), "Node2D accessors should reject Controls")
+	var incompatible_control := Control.new()
+	_expect(
+		not NODE_2D_SCRIPT.position_to(Vector2.ONE).attach_to(incompatible_control),
+		"Node2D accessors should reject Controls"
+	)
+	incompatible_control.free()
 	target.free()
 
 
@@ -181,7 +186,9 @@ func test_typed_timeline_positions_and_labels() -> void:
 	var previous_end = POSITION_SCRIPT.after_previous(-0.1)
 
 	_expect(after_label.is_valid_for(timeline_identity), "A label position should belong to its creating timeline")
-	_expect(not after_label.is_valid_for(Node.new()), "A label position should reject a different timeline")
+	var different_timeline_identity := Node.new()
+	_expect(after_label.is_valid_for(different_timeline_identity) == false, "A label position should reject a different timeline")
+	different_timeline_identity.free()
 	_expect(absolute_position.is_valid_for(timeline_identity), "An absolute typed position should be valid")
 	_expect(previous_start.is_valid_for(timeline_identity), "A relative previous-start position should be valid")
 	_expect(previous_end.is_valid_for(timeline_identity), "A relative previous-end offset may overlap its predecessor")
