@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.0 - 2026-10-09
+
+### Breaking
+
+- Replaced property/option dictionaries and string timeline positions with typed tracks, options, accessors, labels, and position tokens.
+- Removed v1 runtime classes and dictionary parsers; v1 callers are unsupported and no compatibility layer is included.
+- Removed v1 motion-path and shader-property entry points. Typed replacements are not included in this release.
+
+### Added
+
+- Typed tween modes, per-track keyframes/options, lifecycle callbacks, timeline playback, and identity-based overwrite handling.
+- Typed multi-target tween factories with stagger, grid, and axis options.
+- Typed accessors for Node2D, Control, and CanvasItem properties.
+- AnimationPlayer export from native-path typed tracks, limited to linear tracks without repeats, yoyo, or custom interpolation.
+- [v2 API reference](docs/api_v2.md) and [v1 migration guide](docs/migration_v1_to_v2.md).
+
 ## 1.0.0 - 2026-09-21
 
 ### Added

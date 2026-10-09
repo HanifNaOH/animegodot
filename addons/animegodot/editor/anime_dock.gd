@@ -1,7 +1,7 @@
 @tool
 extends VBoxContainer
 
-const REGISTRY_SCRIPT = preload("res://addons/animegodot/runtime/anime_registry.gd")
+const REGISTRY_SCRIPT = preload("res://addons/animegodot/runtime/anime_registry_runtime.gd")
 
 var editor_interface: Variant
 var _animation_player: AnimationPlayer
@@ -273,8 +273,8 @@ func _update_runtime_state() -> void:
 		else:
 			target_name = target.get_class()
 		var property_names: Array[String] = []
-		for property_path in record["properties"]:
-			property_names.append(String(property_path))
+		for property_key in record["properties"]:
+			property_names.append(String(property_key.display_name()))
 		lines.append("%s | %s" % [target_name, ", ".join(property_names)])
 	_runtime_label.text = "\n".join(lines)
 

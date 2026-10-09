@@ -70,16 +70,16 @@ func _on_row_added(row: Node) -> void:
 	if row is Control:
 		var control := row as Control
 		var target_height := maxf(control.custom_minimum_size.y, control.size.y)
-		Anime.set_value(control, {
-			"custom_minimum_size:y": 0.0,
-			"modulate:a": 0.0,
-		})
-		Anime.to(control, {
-			"custom_minimum_size:y": target_height,
-			"modulate:a": 1.0,
-			"duration": 0.24,
-			"ease": Anime.EASE_OUT_BACK,
-		})
+		var set_tween := Anime.set_value(control)
+		set_tween.track(AnimeControl.custom_minimum_size_to(Vector2(control.custom_minimum_size.x, 0.0)))
+		set_tween.track(AnimeCanvasItem.alpha_to(0.0))
+		set_tween.play()
+		var enter_tween := Anime.tween(control)
+		enter_tween.options.duration = 0.24
+		enter_tween.options.ease = AnimeEase.OUT_BACK
+		enter_tween.track(AnimeControl.custom_minimum_size_to(Vector2(control.custom_minimum_size.x, target_height)))
+		enter_tween.track(AnimeCanvasItem.alpha_to(1.0))
+		enter_tween.play()
 
 
 func _on_row_removed(row: Node) -> void:
@@ -96,14 +96,14 @@ func _on_row_remove_requested(item_id: int) -> void:
 		var control := row as Control
 		control.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var exit_x := control.position.x - maxf(control.size.x, 320.0)
-		Anime.to(control, {
-			"custom_minimum_size:y": 0.0,
-			"position:x": exit_x,
-			"modulate:a": 0.0,
-			"duration": 0.18,
-			"ease": Anime.EASE_IN_SINE,
-			"on_complete": func(): view_model.remove_item(item_id),
-		})
+		var exit_tween := Anime.tween(control)
+		exit_tween.options.duration = 0.18
+		exit_tween.options.ease = AnimeEase.IN_SINE
+		exit_tween.options.on_complete = func(): view_model.remove_item(item_id)
+		exit_tween.track(AnimeControl.custom_minimum_size_to(Vector2(control.custom_minimum_size.x, 0.0)))
+		exit_tween.track(AnimeControl.position_to(Vector2(exit_x, control.position.y)))
+		exit_tween.track(AnimeCanvasItem.alpha_to(0.0))
+		exit_tween.play()
 		return
 
 

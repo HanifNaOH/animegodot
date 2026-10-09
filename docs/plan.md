@@ -1,4 +1,6 @@
-# AnimeGodot Plan
+# AnimeGodot Plan (Historical v1)
+
+> This is the original v1 implementation plan. Its dictionary-based API examples are historical and unsupported in v2. Use [the v2 API reference](api_v2.md), [the migration guide](migration_v1_to_v2.md), and [the v2 roadmap](plan2.md) for current guidance.
 
 ## Goal
 

@@ -1,0 +1,392 @@
+[gd_scene format=3 uid="uid://bv587a301c6iw"]
+
+[ext_resource type="Script" uid="uid://cabd4q1bpkw8a" path="res://examples/main_menu/main_menu.gd" id="1_main_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_halo"]
+bg_color = Color(0.105, 0.18, 0.17, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.34, 0.29, 1)
+corner_radius_top_left = 180
+corner_radius_top_right = 180
+corner_radius_bottom_right = 180
+corner_radius_bottom_left = 180
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hair"]
+bg_color = Color(0.09, 0.16, 0.17, 1)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_face"]
+bg_color = Color(0.94, 0.65, 0.43, 1)
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_body"]
+bg_color = Color(0.9, 0.32, 0.22, 1)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+content_margin_left = 20.0
+content_margin_right = 18.0
+bg_color = Color(0.11, 0.16, 0.17, 1)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.35, 0.32, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+content_margin_left = 20.0
+content_margin_right = 18.0
+bg_color = Color(0.26, 0.18, 0.14, 1)
+border_width_left = 4
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.53, 0.32, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 20.0
+content_margin_right = 18.0
+bg_color = Color(0.15, 0.24, 0.22, 1)
+border_width_left = 4
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.29, 0.75, 0.62, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_focus"]
+content_margin_left = 20.0
+content_margin_right = 18.0
+bg_color = Color(0.11, 0.16, 0.17, 1)
+border_width_left = 4
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.94, 0.68, 0.38, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="MainMenu" type="Control" unique_id=1577745664]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main_menu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=197423195]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.045, 0.075, 0.08, 1)
+
+[node name="Page" type="MarginContainer" parent="." unique_id=2096549753]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 54.0
+offset_top = 32.0
+offset_right = -54.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Column" type="VBoxContainer" parent="Page" unique_id=1515518299]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Masthead" type="HBoxContainer" parent="Page/Column" unique_id=1348827042]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Brand" type="Label" parent="Page/Column/Masthead" unique_id=1653293862]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.81, 0.67, 1)
+theme_override_font_sizes/font_size = 14
+text = "NORTHSTAR  /  PLAYER ONE"
+
+[node name="MastheadSpacer" type="Control" parent="Page/Column/Masthead" unique_id=246193773]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PageIndex" type="Label" parent="Page/Column/Masthead" unique_id=347145810]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.61, 0.69, 0.66, 1)
+theme_override_font_sizes/font_size = 13
+text = "MENU  |  01 / 04"
+horizontal_alignment = 2
+
+[node name="Heading" type="Label" parent="Page/Column" unique_id=2041299097]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.94, 0.86, 1)
+theme_override_font_sizes/font_size = 38
+text = "MAIN MENU"
+
+[node name="Intro" type="Label" parent="Page/Column" unique_id=1460521193]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.73, 0.69, 1)
+theme_override_font_sizes/font_size = 15
+text = "FOCUS TO AIM. SELECT TO CHOOSE."
+
+[node name="MainArea" type="HBoxContainer" parent="Page/Column" unique_id=693466867]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 34
+
+[node name="CharacterStage" type="Control" parent="Page/Column/MainArea" unique_id=688388582]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(390, 350)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Halo" type="Panel" parent="Page/Column/MainArea/CharacterStage" unique_id=943928543]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -142.0
+offset_top = -150.0
+offset_right = 142.0
+offset_bottom = 134.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_halo")
+
+[node name="GuideTag" type="Label" parent="Page/Column/MainArea/CharacterStage" unique_id=401056890]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = 32.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.94, 0.68, 0.38, 1)
+theme_override_font_sizes/font_size = 13
+text = "YOUR MENU GUIDE"
+horizontal_alignment = 1
+
+[node name="Hair" type="Panel" parent="Page/Column/MainArea/CharacterStage" unique_id=1817720739]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.355
+anchor_top = 0.18
+anchor_right = 0.645
+anchor_bottom = 0.42
+offset_top = -5.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hair")
+
+[node name="Face" type="Panel" parent="Page/Column/MainArea/CharacterStage" unique_id=1539798550]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.375
+anchor_top = 0.21
+anchor_right = 0.625
+anchor_bottom = 0.48
+theme_override_styles/panel = SubResource("StyleBoxFlat_face")
+
+[node name="EyeLeft" type="ColorRect" parent="Page/Column/MainArea/CharacterStage/Face" unique_id=132062704]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.24
+anchor_top = 0.48
+anchor_right = 0.31
+anchor_bottom = 0.54
+color = Color(0.09, 0.16, 0.17, 1)
+
+[node name="EyeRight" type="ColorRect" parent="Page/Column/MainArea/CharacterStage/Face" unique_id=507285775]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.69
+anchor_top = 0.48
+anchor_right = 0.76
+anchor_bottom = 0.54
+color = Color(0.09, 0.16, 0.17, 1)
+
+[node name="Neck" type="ColorRect" parent="Page/Column/MainArea/CharacterStage" unique_id=641889252]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.445
+anchor_top = 0.44
+anchor_right = 0.555
+anchor_bottom = 0.59
+color = Color(0.84, 0.52, 0.34, 1)
+
+[node name="Body" type="Panel" parent="Page/Column/MainArea/CharacterStage" unique_id=618652522]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.275
+anchor_top = 0.52
+anchor_right = 0.725
+anchor_bottom = 1.0
+offset_bottom = 12.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_body")
+
+[node name="GuideInitial" type="Label" parent="Page/Column/MainArea/CharacterStage/Body" unique_id=273614860]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -22.0
+offset_top = -11.0
+offset_right = 22.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.63, 1)
+theme_override_font_sizes/font_size = 22
+text = "M"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuColumn" type="VBoxContainer" parent="Page/Column/MainArea" unique_id=350976966]
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 16
+
+[node name="MenuPrompt" type="Label" parent="Page/Column/MainArea/MenuColumn" unique_id=2021842750]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.68, 0.38, 1)
+theme_override_font_sizes/font_size = 13
+text = "CHOOSE A DESTINATION"
+
+[node name="MenuButtons" type="VBoxContainer" parent="Page/Column/MainArea/MenuColumn" unique_id=457018449]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="ContinueButton" type="Button" parent="Page/Column/MainArea/MenuColumn/MenuButtons" unique_id=1874859691]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.87, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.86, 0.63, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.63, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+text = "01    CONTINUE"
+alignment = 0
+
+[node name="NewGameButton" type="Button" parent="Page/Column/MainArea/MenuColumn/MenuButtons" unique_id=608239297]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.87, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.86, 0.63, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.63, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+text = "02    NEW GAME"
+alignment = 0
+
+[node name="SettingsButton" type="Button" parent="Page/Column/MainArea/MenuColumn/MenuButtons" unique_id=428612075]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.87, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.86, 0.63, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.63, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+text = "03    SETTINGS"
+alignment = 0
+
+[node name="QuitButton" type="Button" parent="Page/Column/MainArea/MenuColumn/MenuButtons" unique_id=1090379678]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 0.87, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.86, 0.63, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.63, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+text = "04    QUIT"
+alignment = 0
+
+[node name="SelectionReadout" type="VBoxContainer" parent="Page/Column/MainArea/MenuColumn" unique_id=244029437]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="SelectedOption" type="Label" parent="Page/Column/MainArea/MenuColumn/SelectionReadout" unique_id=652430345]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.81, 0.67, 1)
+theme_override_font_sizes/font_size = 21
+text = "MAKE YOUR MOVE"
+
+[node name="SelectionDetail" type="Label" parent="Page/Column/MainArea/MenuColumn/SelectionReadout" unique_id=429325143]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.73, 0.69, 1)
+theme_override_font_sizes/font_size = 14
+text = "Hover or focus a menu item, then select it."
+autowrap_mode = 2
+
+[node name="PageFooter" type="Label" parent="Page/Column" unique_id=1239768115]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.53, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "GDVM  /  ONE VIEWMODEL  /  FOUR CHOICES"
+horizontal_alignment = 2
+
+[node name="HandIndicator" type="Control" parent="." unique_id=1702813790]
+unique_name_in_owner = true
+z_index = 10
+layout_mode = 1
+anchors_preset = 0
+offset_right = 168.0
+offset_bottom = 64.0
+mouse_filter = 2
+
+[node name="HandShape" type="Polygon2D" parent="HandIndicator" unique_id=393806956]
+position = Vector2(0, 32)
+color = Color(0.96, 0.69, 0.46, 1)
+polygon = PackedVector2Array(-154, -12, -48, -12, -38, -18, 9, -18, 15, -24, 26, -24, 31, -19, 31, -13, 76, -13, 84, -8, 84, -2, 79, 3, 31, 3, 31, 13, 26, 20, 18, 18, 13, 4, -38, 4, -49, 11, -60, 8, -66, 2, -154, 2)

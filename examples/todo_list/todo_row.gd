@@ -46,21 +46,21 @@ func get_item_id() -> int:
 
 
 func _on_mouse_entered() -> void:
-	Anime.to(self, {
-		"scale": Vector2(1.02, 1.02),
-		"duration": 0.12,
-		"ease": Anime.EASE_OUT_QUAD,
-		"overwrite": Anime.OVERWRITE_AUTO,
-	})
+	var tween := Anime.tween(self)
+	tween.options.duration = 0.12
+	tween.options.ease = AnimeEase.OUT_QUAD
+	tween.options.overwrite = AnimeOverwrite.AUTO
+	tween.track(AnimeControl.scale_to(Vector2(1.02, 1.02)))
+	tween.play()
 
 
 func _on_mouse_exited() -> void:
-	Anime.to(self, {
-		"scale": Vector2.ONE,
-		"duration": 0.14,
-		"ease": Anime.EASE_OUT_QUAD,
-		"overwrite": Anime.OVERWRITE_AUTO,
-	})
+	var tween := Anime.tween(self)
+	tween.options.duration = 0.14
+	tween.options.ease = AnimeEase.OUT_QUAD
+	tween.options.overwrite = AnimeOverwrite.AUTO
+	tween.track(AnimeControl.scale_to(Vector2.ONE))
+	tween.play()
 
 
 func _exit_tree() -> void:
