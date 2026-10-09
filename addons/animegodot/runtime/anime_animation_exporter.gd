@@ -47,9 +47,7 @@ static func from_tween(player: AnimationPlayer, tween: AnimeTweenRuntime) -> Ani
 			animation.track_insert_key(animation_track, track_delay, values.back())
 			continue
 		for value_index in values.size():
-			var time := track_delay
-			if values.size() > 1:
-				time += track_duration * float(value_index) / float(values.size() - 1)
+			var time := track_delay + _key_time(track, track_duration, value_index, values.size())
 			animation.track_insert_key(animation_track, time, values[value_index])
 	return animation
 
@@ -75,22 +73,38 @@ static func add_to_player(player: AnimationPlayer, name: StringName, tween: Anim
 static func _values_for(tween: AnimeTweenRuntime, track: AnimeTrack) -> Array:
 	var current_value = track.accessor.read(tween.target)
 	var values: Array = []
+	var intermediate_values: Array = []
+	if track.keyframe_points.is_empty():
+		intermediate_values.append_array(track.keyframes)
+	else:
+		for keyframe in track.keyframe_points:
+			intermediate_values.append(keyframe.value)
 	match tween.mode:
 		AnimeTweenRuntime.Mode.FROM:
 			values.append(track.end_value)
-			values.append_array(track.keyframes)
+			values.append_array(intermediate_values)
 			values.append(current_value)
 		AnimeTweenRuntime.Mode.FROM_TO:
 			values.append(track.start_value if track.has_start_value else current_value)
-			values.append_array(track.keyframes)
+			values.append_array(intermediate_values)
 			values.append(track.end_value)
 		AnimeTweenRuntime.Mode.SET:
 			values.append(track.end_value)
 		_:
 			values.append(current_value)
-			values.append_array(track.keyframes)
+			values.append_array(intermediate_values)
 			values.append(track.end_value)
 	return values
+
+
+static func _key_time(track: AnimeTrack, duration: float, value_index: int, value_count: int) -> float:
+	if track.keyframe_points.is_empty():
+		return 0.0 if value_count <= 1 else duration * float(value_index) / float(value_count - 1)
+	if value_index == 0:
+		return 0.0
+	if value_index == value_count - 1:
+		return duration
+	return duration * track.keyframe_points[value_index - 1].progress
 
 
 static func _has_unsupported_timing(tween: AnimeTweenRuntime, track: AnimeTrack) -> bool:
@@ -100,6 +114,9 @@ static func _has_unsupported_timing(tween: AnimeTweenRuntime, track: AnimeTrack)
 	var direction := track.options.direction if track.options.direction != AnimeOptions.Direction.INHERIT else tween.options.direction
 	var ease := track.options.ease if track.options.ease != AnimeEase.INHERIT else tween.options.ease
 	var interpolator := track.options.interpolator if track.options.interpolator.is_valid() else Callable()
+	for keyframe in track.keyframe_points:
+		if keyframe.interpolator.is_valid() or (keyframe.ease != AnimeEase.INHERIT and keyframe.ease != AnimeEase.LINEAR):
+			return true
 	return (
 		repeat_count > 0
 		or repeat_delay > 0.0

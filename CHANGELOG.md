@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased (2.1)
+
+### Added
+
+- Total-time and progress queries/seeking for tween and timeline handles, plus per-track iteration/progress state.
+- Repeat and reverse-completion callbacks/signals, and reusable `invalidate()` / restorative `revert()` lifecycle controls.
+- Typed normalized `AnimeKeyframe` points with per-segment easing/interpolation and linear AnimationPlayer export.
+
 ## 2.0.0 - 2026-10-09
 
 ### Breaking

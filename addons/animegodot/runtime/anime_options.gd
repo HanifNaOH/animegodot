@@ -22,7 +22,10 @@ var process_mode: int = Tween.TWEEN_PROCESS_IDLE
 var autoplay: bool = false
 var on_start: Callable = Callable()
 var on_update: Callable = Callable()
+var on_repeat: Callable = Callable()
+var on_track_repeat: Callable = Callable()
 var on_complete: Callable = Callable()
+var on_reverse_complete: Callable = Callable()
 var on_kill: Callable = Callable()
 
 
@@ -61,6 +64,9 @@ func copy() -> AnimeOptions:
 	copied.autoplay = autoplay
 	copied.on_start = on_start
 	copied.on_update = on_update
+	copied.on_repeat = on_repeat
+	copied.on_track_repeat = on_track_repeat
 	copied.on_complete = on_complete
+	copied.on_reverse_complete = on_reverse_complete
 	copied.on_kill = on_kill
 	return copied

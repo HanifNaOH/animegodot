@@ -6,6 +6,7 @@ var end_value: Variant
 var start_value: Variant
 var has_start_value := false
 var keyframes: Array[Variant] = []
+var keyframe_points: Array[AnimeKeyframe] = []
 var options: AnimeTrackOptions = AnimeTrackOptions.new()
 var target: Object
 
@@ -48,6 +49,22 @@ func set_keyframes(values: Array) -> bool:
 		if not accessor.accepts_value(value):
 			return false
 	keyframes.assign(values)
+	keyframe_points.clear()
+	return true
+
+
+func set_keyframe_points(points: Array[AnimeKeyframe]) -> bool:
+	if accessor == null:
+		return false
+	var previous_progress := 0.0
+	for point in points:
+		if point == null or not point.is_valid() or point.progress <= previous_progress or not accessor.accepts_value(point.value):
+			return false
+		previous_progress = point.progress
+	keyframe_points.clear()
+	for point in points:
+		keyframe_points.append(point.copy())
+	keyframes.clear()
 	return true
 
 
@@ -58,7 +75,7 @@ func copy_for(track_target: Object) -> AnimeTrack:
 	copied.options = options.copy()
 	if has_start_value and not copied.set_start_value(start_value):
 		return null
-	if not copied.set_keyframes(keyframes) or not copied.attach_to(track_target):
+	if not copied.set_keyframes(keyframes) or not copied.set_keyframe_points(keyframe_points) or not copied.attach_to(track_target):
 		return null
 	return copied
 
@@ -85,4 +102,14 @@ func _accepts_values(candidate: Object) -> bool:
 	for keyframe in keyframes:
 		if not accessor.accepts_value(keyframe):
 			return false
+	var previous_progress := 0.0
+	for keyframe_point in keyframe_points:
+		if (
+			keyframe_point == null
+			or not keyframe_point.is_valid()
+			or keyframe_point.progress <= previous_progress
+			or not accessor.accepts_value(keyframe_point.value)
+		):
+			return false
+		previous_progress = keyframe_point.progress
 	return true

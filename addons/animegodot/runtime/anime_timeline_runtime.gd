@@ -3,7 +3,10 @@ extends RefCounted
 
 signal started(timeline: AnimeTimelineRuntime)
 signal updated(timeline: AnimeTimelineRuntime, progress: float)
+signal repeated(timeline: AnimeTimelineRuntime, iteration: int)
 signal completed(timeline: AnimeTimelineRuntime)
+signal reverse_completed(timeline: AnimeTimelineRuntime)
+signal reverted(timeline: AnimeTimelineRuntime)
 signal killed(timeline: AnimeTimelineRuntime)
 
 enum EntryKind {
@@ -40,13 +43,20 @@ var _last_start := 0.0
 var _last_end := 0.0
 var _position := 0.0
 var _last_position := 0.0
+var _total_position := 0.0
+var _iteration := 0
 var _cycle_direction := 1
 var _play_direction := 1
+var _cycle_start_position := 0.0
+var _cycle_end_position := 0.0
+var _cycle_total_start := 0.0
+var _cycle_total_end := 0.0
 var _driver: Tween
 var _started := false
 var _completed := false
 var _killed := false
 var _paused := false
+var _reverted := false
 var _autoplay_scheduled := false
 
 
@@ -145,11 +155,14 @@ func resume() -> AnimeTimelineRuntime:
 func restart() -> AnimeTimelineRuntime:
 	_stop_driver()
 	_position = 0.0
+	_total_position = 0.0
+	_iteration = 0
 	_play_direction = 1
 	_started = false
 	_completed = false
 	_killed = false
 	_paused = false
+	_reverted = false
 	_reset_entries()
 	return play()
 
@@ -165,6 +178,8 @@ func reverse() -> AnimeTimelineRuntime:
 		_reset_entries()
 	if is_zero_approx(_position):
 		_position = duration
+		_iteration = options.repeat_count
+		_total_position = get_total_duration()
 		_apply_at(_position, false)
 	return play()
 
@@ -178,9 +193,58 @@ func seek(position: float) -> AnimeTimelineRuntime:
 	active = false
 	_paused = true
 	_position = clampf(position, 0.0, duration)
+	_iteration = 0
+	_total_position = options.delay + _position
+	_cycle_direction = 1
+	_cycle_start_position = 0.0
+	_cycle_end_position = duration
+	_cycle_total_start = options.delay
+	_cycle_total_end = options.delay + duration
 	_last_position = _position
 	_apply_at(_position, false)
 	_emit_update(get_progress())
+	return self
+
+
+func seek_progress(progress: float) -> AnimeTimelineRuntime:
+	if not is_finite(progress) or not options.is_valid() or not _prepare_entries():
+		return self
+	_stop_driver()
+	_completed = false
+	_killed = false
+	active = false
+	_paused = true
+	_reset_entries()
+	var total_duration := get_total_duration()
+	_total_position = clampf(progress, 0.0, 1.0) * total_duration
+	if is_zero_approx(duration):
+		_position = 0.0
+		_iteration = 0
+		_apply_at(_position, false)
+		_emit_update(get_progress())
+		return self
+	var cycle_span := duration + options.repeat_delay
+	var content_position := maxf(_total_position - options.delay, 0.0)
+	_iteration = mini(int(floor(content_position / cycle_span)), options.repeat_count)
+	var cycle_position := minf(fmod(content_position, cycle_span), duration)
+	if _total_position >= total_duration:
+		_iteration = options.repeat_count
+		cycle_position = duration
+	var reverse_cycle := _is_reverse_cycle(_iteration)
+	_cycle_direction = -1 if reverse_cycle else 1
+	_cycle_start_position = duration if reverse_cycle else 0.0
+	_cycle_end_position = 0.0 if reverse_cycle else duration
+	_position = duration - cycle_position if reverse_cycle else cycle_position
+	_cycle_total_start = options.delay + _iteration * cycle_span
+	_cycle_total_end = _cycle_total_start + duration
+	if _play_direction < 0:
+		_cycle_total_end = _cycle_total_start
+		_cycle_total_start += duration
+		_cycle_end_position = _cycle_start_position
+	_cycle_total_start = _total_position
+	_last_position = _position
+	_apply_at(_position, false)
+	_emit_update(get_total_progress())
 	return self
 
 
@@ -194,6 +258,45 @@ func kill(emit_callback: bool = true) -> void:
 	if emit_callback:
 		_invoke(options.on_kill)
 	killed.emit(self)
+
+
+func invalidate() -> AnimeTimelineRuntime:
+	_stop_driver()
+	for entry in _entries:
+		if entry.kind == EntryKind.TWEEN:
+			entry.tween.invalidate()
+		elif entry.kind == EntryKind.TIMELINE:
+			entry.timeline.invalidate()
+	_position = 0.0
+	_last_position = 0.0
+	_total_position = 0.0
+	_iteration = 0
+	_play_direction = 1
+	_started = false
+	_completed = false
+	_killed = false
+	_paused = false
+	_reverted = false
+	_reset_entries()
+	return self
+
+
+func revert() -> AnimeTimelineRuntime:
+	if _reverted:
+		return self
+	_stop_driver()
+	for entry in _entries:
+		if entry.kind == EntryKind.TWEEN:
+			entry.tween.revert()
+		elif entry.kind == EntryKind.TIMELINE:
+			entry.timeline.revert()
+	_killed = true
+	_completed = false
+	_paused = false
+	_reverted = true
+	reverted.emit(self)
+	killed.emit(self)
+	return self
 
 
 func is_finished() -> bool:
@@ -210,6 +313,37 @@ func get_position() -> float:
 
 func get_progress() -> float:
 	return 0.0 if is_zero_approx(duration) else _position / duration
+
+
+func get_total_duration() -> float:
+	if not options.is_valid():
+		return 0.0
+	if is_zero_approx(duration):
+		return 0.0
+	return options.delay + duration * (options.repeat_count + 1) + options.repeat_delay * options.repeat_count
+
+
+func get_total_position() -> float:
+	return _total_position
+
+
+func get_total_progress() -> float:
+	var total_duration := get_total_duration()
+	if is_zero_approx(total_duration):
+		return 1.0 if _completed else 0.0
+	return clampf(_total_position / total_duration, 0.0, 1.0)
+
+
+func get_iteration() -> int:
+	return _iteration + 1
+
+
+func is_active() -> bool:
+	return active and not _paused and not _completed and not _killed
+
+
+func is_reversed() -> bool:
+	return _play_direction < 0
 
 
 func sample_at(position: float, fire_events: bool = false) -> void:
@@ -311,31 +445,72 @@ func _start_driver(resume_from_position: bool = false) -> void:
 	_driver.set_process_mode(options.process_mode)
 	_apply_time_scale()
 	if options.delay > 0.0 and not resume_from_position:
-		_driver.tween_interval(options.delay)
+		if _play_direction > 0:
+			_driver.tween_method(Callable(self, "_update_total_position"), _total_position, options.delay, options.delay)
+		else:
+			_driver.tween_interval(options.delay)
 	if resume_from_position and _position > 0.0 and _position < duration:
-		var endpoint := duration if _play_direction > 0 else 0.0
-		_begin_cycle(_position, endpoint)
+		var endpoint := _cycle_end_position
+		_begin_cycle(_position, endpoint, _iteration, _total_position, _cycle_total_end)
 		_driver.tween_method(Callable(self, "_on_driver_position"), _position, endpoint, absf(endpoint - _position))
 	else:
-		for cycle_index in range(options.repeat_count + 1):
-			if cycle_index > 0:
+		for playback_cycle in range(options.repeat_count + 1):
+			var iteration_index := playback_cycle if _play_direction > 0 else options.repeat_count - playback_cycle
+			var cycle_span := duration + options.repeat_delay
+			var cycle_total_start := options.delay + iteration_index * cycle_span
+			var cycle_total_end := cycle_total_start + duration
+			if _play_direction < 0:
+				cycle_total_start = cycle_total_end
+				cycle_total_end = options.delay + iteration_index * cycle_span
+			if playback_cycle > 0:
 				if options.repeat_delay > 0.0:
-					_driver.tween_interval(options.repeat_delay)
+					var repeat_delay_start := cycle_total_start
+					repeat_delay_start += options.repeat_delay if _play_direction < 0 else -options.repeat_delay
+					_driver.tween_method(
+						Callable(self, "_update_total_position"),
+						repeat_delay_start,
+						cycle_total_start,
+						options.repeat_delay
+					)
 				_driver.tween_callback(Callable(self, "_reset_entries"))
-			var reverse_cycle := options.direction == AnimeOptions.Direction.REVERSE
-			if (options.direction == AnimeOptions.Direction.ALTERNATE or options.yoyo) and cycle_index % 2 == 1:
-				reverse_cycle = not reverse_cycle
+			var reverse_cycle := _is_reverse_cycle(iteration_index)
 			if _play_direction < 0:
 				reverse_cycle = not reverse_cycle
 			var cycle_start := duration if reverse_cycle else 0.0
 			var cycle_end := 0.0 if reverse_cycle else duration
-			_driver.tween_callback(Callable(self, "_begin_cycle").bind(cycle_start, cycle_end))
+			_driver.tween_callback(
+				Callable(self, "_begin_cycle").bind(
+					cycle_start,
+					cycle_end,
+					iteration_index,
+					cycle_total_start,
+					cycle_total_end
+				)
+			)
 			_driver.tween_method(Callable(self, "_on_driver_position"), cycle_start, cycle_end, duration)
 	_driver.finished.connect(_on_driver_finished)
 
 
-func _begin_cycle(start_time: float, end_time: float) -> void:
+func _begin_cycle(
+	start_time: float,
+	end_time: float,
+	iteration_index: int = 0,
+	total_start: float = -1.0,
+	total_end: float = -1.0
+) -> void:
+	var previous_iteration := _iteration
+	if _started and iteration_index != previous_iteration:
+		_invoke(options.on_repeat, [iteration_index + 1])
+		repeated.emit(self, iteration_index + 1)
+	_iteration = iteration_index
 	_cycle_direction = 1 if end_time >= start_time else -1
+	_cycle_start_position = start_time
+	_cycle_end_position = end_time
+	if total_start >= 0.0:
+		_cycle_total_start = total_start
+	if total_end >= 0.0:
+		_cycle_total_end = total_end
+	_total_position = _cycle_total_start
 	_position = start_time
 	_last_position = start_time - float(_cycle_direction) * 0.000001
 	_apply_at(start_time, true)
@@ -345,8 +520,22 @@ func _on_driver_position(position: float) -> void:
 	if _killed:
 		return
 	_position = position
+	var cycle_length := absf(_cycle_end_position - _cycle_start_position)
+	var cycle_progress := 1.0 if is_zero_approx(cycle_length) else absf(position - _cycle_start_position) / cycle_length
+	_total_position = lerpf(_cycle_total_start, _cycle_total_end, clampf(cycle_progress, 0.0, 1.0))
 	_apply_at(position, true)
 	_emit_update(get_progress())
+
+
+func _update_total_position(position: float) -> void:
+	_total_position = position
+
+
+func _is_reverse_cycle(iteration_index: int) -> bool:
+	var reverse_cycle := options.direction == AnimeOptions.Direction.REVERSE
+	if (options.direction == AnimeOptions.Direction.ALTERNATE or options.yoyo) and iteration_index % 2 == 1:
+		reverse_cycle = not reverse_cycle
+	return reverse_cycle
 
 
 func _apply_at(position: float, fire_events: bool) -> void:
@@ -361,7 +550,7 @@ func _apply_at(position: float, fire_events: bool) -> void:
 				var local_time := clampf(position - entry.start_time, 0.0, entry.duration)
 				var should_sample := (_cycle_direction > 0 and position >= entry.start_time) or (_cycle_direction < 0 and position <= entry_end)
 				if should_sample and not entry.finished:
-					entry.tween.sample_at(local_time, true, true)
+					entry.tween.sample_at(local_time, true, true, fire_events)
 				var exits := position >= entry_end if _cycle_direction > 0 else position <= entry.start_time
 				if fire_events and exits and entry.started and not entry.finished:
 					entry.finished = true
@@ -443,6 +632,10 @@ func _finish() -> void:
 	active = false
 	_paused = false
 	_completed = true
+	_total_position = get_total_duration() if _play_direction > 0 else 0.0
+	if _play_direction < 0:
+		_invoke(options.on_reverse_complete)
+		reverse_completed.emit(self)
 	_invoke(options.on_complete)
 	completed.emit(self)
 

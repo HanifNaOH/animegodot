@@ -194,6 +194,31 @@ func test_animation_player_export_uses_typed_native_accessor() -> void:
 	_expect(player.get_animation_library(&"").has_animation(&"move"), "Typed AnimationPlayer installation should register the clip")
 
 
+func test_animation_player_export_preserves_linear_keyframe_points() -> void:
+	var root := Node2D.new()
+	var target := Node2D.new()
+	var player := AnimationPlayer.new()
+	target.name = "Target"
+	root.add_child(target)
+	root.add_child(player)
+	add_child_autoqfree(root)
+	var tween = ANIME_SCRIPT.to(target)
+	tween.options.duration = 0.4
+	tween.options.ease = AnimeEase.LINEAR
+	var track = NODE_2D_SCRIPT.position_to(Vector2(100.0, 0.0))
+	var points: Array[AnimeKeyframe] = [
+		AnimeKeyframe.new(0.25, Vector2(20.0, 0.0), AnimeEase.LINEAR),
+		AnimeKeyframe.new(0.75, Vector2(80.0, 0.0), AnimeEase.LINEAR),
+	]
+	track.set_keyframe_points(points)
+	tween.track(track)
+	var animation = ANIME_SCRIPT.animation_from_tween(player, tween)
+	_expect(animation.get_track_count() == 1, "Linear typed keyframe points should export to AnimationPlayer")
+	_expect(is_equal_approx(animation.track_get_key_time(0, 1), 0.1), "Export should preserve the first normalized keyframe time")
+	_expect(is_equal_approx(animation.track_get_key_time(0, 2), 0.3), "Export should preserve the second normalized keyframe time")
+	_expect(animation.track_get_key_value(0, 1) == Vector2(20.0, 0.0), "Export should preserve the first typed keyframe value")
+
+
 func test_animation_player_export_skips_callable_only_accessors() -> void:
 	var root := Node2D.new()
 	var target := Node2D.new()

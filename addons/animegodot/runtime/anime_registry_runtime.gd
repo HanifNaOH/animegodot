@@ -49,6 +49,12 @@ func register(tween: AnimeTweenRuntime, target: Object, overwrite: int) -> void:
 		tween.killed.connect(_on_tween_finished)
 
 
+func unregister(tween: AnimeTweenRuntime) -> void:
+	for record in _records.duplicate():
+		if record.tween_ref.get_ref() == tween:
+			_records.erase(record)
+
+
 func get_active_records() -> Array:
 	_cleanup()
 	var active_records: Array = []
