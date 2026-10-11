@@ -327,6 +327,12 @@ func test_expandable_queue_animates_row_size_and_following_positions() -> void:
 	var slots: Array = demo.get("_slots")
 	var visuals: Array = demo.get("_visuals")
 	var details: Array = demo.get("_details")
+	_assert(slots.size() == 3, "The queue should instantiate one reusable scene for each step")
+	for slot in slots:
+		_assert(
+			(slot as Node).scene_file_path.ends_with("flip_expand_queue_entry.tscn"),
+			"Each queue step should be an instance of the reusable entry scene"
+		)
 	var detail := details[0] as Label
 	var first_size := (slots[0] as Control).size
 	var second_position := (slots[1] as Control).get_global_rect().position

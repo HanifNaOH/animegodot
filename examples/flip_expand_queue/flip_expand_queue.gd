@@ -1,5 +1,6 @@
 extends Control
 
+const ENTRY_SCENE = preload("res://examples/flip_expand_queue/flip_expand_queue_entry.tscn")
 const ENTRIES := [
 	{
 		"title": "Build release candidate",
@@ -112,74 +113,22 @@ func _build_interface() -> void:
 
 
 func _add_entry(index: int, entry: Dictionary) -> void:
-	var slot := Control.new()
-	slot.custom_minimum_size = Vector2(0, 116)
-	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var slot := ENTRY_SCENE.instantiate() as Control
+	slot.set("step_number", index + 1)
+	slot.set("step_title", entry["title"])
+	slot.set("summary_text", entry["summary"])
+	slot.set("detail_text", entry["detail"])
+	slot.set("status_text", entry["status"])
+	slot.set("card_color", entry["color"])
 	_list.add_child(slot)
 	_slots.append(slot)
 
-	var visual := PanelContainer.new()
-	visual.name = "Visual"
-	visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	visual.add_theme_stylebox_override("panel", _card_style(entry["color"]))
-	slot.add_child(visual)
+	var visual := slot.get_node("Visual") as Control
 	_visuals.append(visual)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	visual.add_child(margin)
-
-	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 5)
-	margin.add_child(content)
-
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 12)
-	content.add_child(title_row)
-
-	var entry_title := Label.new()
-	entry_title.text = "%02d  %s" % [index + 1, entry["title"]]
-	entry_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	entry_title.add_theme_color_override("font_color", Color(0.10, 0.18, 0.16))
-	entry_title.add_theme_font_size_override("font_size", 17)
-	title_row.add_child(entry_title)
-
-	var status := Label.new()
-	status.text = entry["status"]
-	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	status.add_theme_color_override("font_color", Color(0.25, 0.39, 0.34))
-	status.add_theme_font_size_override("font_size", 11)
-	title_row.add_child(status)
-
-	var summary_row := HBoxContainer.new()
-	summary_row.add_theme_constant_override("separation", 12)
-	content.add_child(summary_row)
-
-	var summary := Label.new()
-	summary.text = entry["summary"]
-	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	summary.add_theme_color_override("font_color", Color(0.32, 0.43, 0.39))
-	summary.add_theme_font_size_override("font_size", 13)
-	summary_row.add_child(summary)
-
-	var detail_button := Button.new()
-	detail_button.text = "Show details"
-	detail_button.custom_minimum_size = Vector2(112, 30)
+	var detail_button := slot.get_node("Visual/Margin/Content/SummaryRow/DetailButton") as Button
 	detail_button.pressed.connect(_toggle_details.bind(index))
-	summary_row.add_child(detail_button)
 	_detail_buttons.append(detail_button)
-
-	var detail := Label.new()
-	detail.text = entry["detail"]
-	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail.add_theme_color_override("font_color", Color(0.23, 0.34, 0.30))
-	detail.add_theme_font_size_override("font_size", 13)
-	detail.visible = false
-	content.add_child(detail)
-	_details.append(detail)
+	_details.append(slot.get_node("Visual/Margin/Content/Detail") as Label)
 
 
 func _toggle_details(index: int) -> void:
@@ -215,16 +164,3 @@ func _fade_in_detail(_started_layout: AnimeLayoutRuntime, detail: Label, transit
 	tween.options.ease = AnimeEase.OUT_CUBIC
 	tween.track(AnimeCanvasItem.alpha_to(1.0))
 	tween.play()
-
-
-func _card_style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
-	style.shadow_color = Color(0.08, 0.16, 0.13, 0.12)
-	style.shadow_size = 4
-	style.shadow_offset = Vector2(0, 2)
-	return style

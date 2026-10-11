@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://bm0qmq3wb5qh1"]
+
+[ext_resource type="Script" uid="uid://18yxjuwi0fqm" path="res://examples/flip_expand_queue/flip_expand_queue_entry.gd" id="1_entry"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nr84r"]
+bg_color = Color(0.82, 0.91, 0.84, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0.08, 0.16, 0.13, 0.12)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[node name="QueueEntry" type="Control" unique_id=1972899805]
+custom_minimum_size = Vector2(0, 116)
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 3
+script = ExtResource("1_entry")
+
+[node name="Visual" type="PanelContainer" parent="." unique_id=1756554143]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nr84r")
+
+[node name="Margin" type="MarginContainer" parent="Visual" unique_id=125970356]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Visual/Margin" unique_id=1860145775]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleRow" type="HBoxContainer" parent="Visual/Margin/Content" unique_id=1749721592]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StepTitle" type="Label" parent="Visual/Margin/Content/TitleRow" unique_id=2129963007]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.1, 0.18, 0.16, 1)
+theme_override_font_sizes/font_size = 17
+text = "01  Build release candidate"
+
+[node name="Status" type="Label" parent="Visual/Margin/Content/TitleRow" unique_id=913710184]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.39, 0.34, 1)
+theme_override_font_sizes/font_size = 11
+text = "READY"
+vertical_alignment = 1
+
+[node name="SummaryRow" type="HBoxContainer" parent="Visual/Margin/Content" unique_id=68567404]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Summary" type="Label" parent="Visual/Margin/Content/SummaryRow" unique_id=1843217293]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.32, 0.43, 0.39, 1)
+theme_override_font_sizes/font_size = 13
+text = "Artifact #2481 / signed 2 min ago"
+
+[node name="DetailButton" type="Button" parent="Visual/Margin/Content/SummaryRow" unique_id=822796963]
+custom_minimum_size = Vector2(112, 30)
+layout_mode = 2
+text = "Show details"
+
+[node name="Detail" type="Label" parent="Visual/Margin/Content" unique_id=1306856470]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.34, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "The desktop and mobile packages are staged. Check the release checksum before publishing."
+autowrap_mode = 3
