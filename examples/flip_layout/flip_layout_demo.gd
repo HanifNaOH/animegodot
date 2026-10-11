@@ -79,10 +79,11 @@ func _transition_layout(change: Callable) -> bool:
 	options.ease = AnimeEase.OUT_CUBIC
 	options.size_ease = AnimeEase.IN_OUT_CUBIC
 	var flip := _layout
-	flip.options = options
 	_active_flip = flip
-	await flip.update(func(_root: Control) -> void:
-		change.call()
+	await flip.update(
+		func(_root: Control) -> void:
+			change.call(),
+		options
 	)
 	if _active_flip == flip:
 		_active_flip = null

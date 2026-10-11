@@ -24,37 +24,39 @@ size = Vector3(0.94, 1.08, 0.22)
 [node name="ElementCard" type="Node3D" unique_id=937155444]
 script = ExtResource("1_b8wth")
 
-[node name="Frame" type="MeshInstance3D" parent="." unique_id=532313809]
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Frame" type="MeshInstance3D" parent="Visuals" unique_id=532313809]
 material_override = SubResource("StandardMaterial3D_o0p6y")
 mesh = SubResource("BoxMesh_46gat")
 
-[node name="Face" type="MeshInstance3D" parent="." unique_id=1511473320]
+[node name="Face" type="MeshInstance3D" parent="Visuals" unique_id=1511473320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.055)
 material_override = SubResource("StandardMaterial3D_aourf")
 mesh = SubResource("BoxMesh_wkega")
 
-[node name="AtomicNumber" type="Label3D" parent="." unique_id=1770320976]
+[node name="AtomicNumber" type="Label3D" parent="Visuals" unique_id=1770320976]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0.105)
 pixel_size = 0.0055
 modulate = Color(0.9, 0.96, 0.92, 1)
 text = "1"
 font_size = 15
 
-[node name="Symbol" type="Label3D" parent="." unique_id=728835037]
+[node name="Symbol" type="Label3D" parent="Visuals" unique_id=728835037]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.108)
 pixel_size = 0.008
 modulate = Color(0.97, 0.99, 0.97, 1)
 text = "H"
 font_size = 52
 
-[node name="ElementName" type="Label3D" parent="." unique_id=154782054]
+[node name="ElementName" type="Label3D" parent="Visuals" unique_id=154782054]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.39, 0.108)
 pixel_size = 0.0055
 modulate = Color(0.82, 0.89, 0.85, 1)
 text = "Hydrogen"
 font_size = 18
 
-[node name="Details" type="Label3D" parent="." unique_id=1235794253]
+[node name="Details" type="Label3D" parent="Visuals" unique_id=1235794253]
 transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, -0.27, -0.32, 0.11)
 pixel_size = 0.0068
 modulate = Color(0.1, 0.23, 0.18, 1)

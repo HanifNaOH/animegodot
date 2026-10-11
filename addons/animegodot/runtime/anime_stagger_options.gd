@@ -96,3 +96,17 @@ func _rank_for(index: int, count: int) -> float:
 		Origin.INDEX:
 			source = clampf(float(origin_index), 0.0, count - 1)
 	return minf(index, count - 1 - index) if origin == Origin.EDGES else absf(index - source)
+
+
+func copy() -> AnimeStaggerOptions:
+	var copied := AnimeStaggerOptions.new()
+	copied.each = each
+	copied.amount = amount
+	copied.start_delay = start_delay
+	copied.origin = origin
+	copied.origin_index = origin_index
+	copied.grid_size = grid_size
+	copied.axis = axis
+	copied.reversed = reversed
+	copied.ease = ease
+	return copied

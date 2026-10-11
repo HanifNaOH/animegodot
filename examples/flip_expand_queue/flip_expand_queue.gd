@@ -191,17 +191,30 @@ func _toggle_details(index: int) -> void:
 	options.ease = AnimeEase.OUT_CUBIC
 	options.size_ease = AnimeEase.IN_OUT_CUBIC
 	var flip := _layout
-	flip.options = options
 	_active_flip = flip
-	var expanded := not _details[index].visible
+	var detail := _details[index]
+	var expanded := not detail.visible
+	if expanded:
+		var detail_modulate := detail.modulate
+		detail_modulate.a = 0.0
+		detail.modulate = detail_modulate
+		flip.started.connect(_fade_in_detail.bind(detail, options.duration), CONNECT_ONE_SHOT)
 	await flip.update(func(_root: Control) -> void:
-		_details[index].visible = expanded
+		detail.visible = expanded
 		_slots[index].custom_minimum_size.y = 174.0 if expanded else 116.0
 		_detail_buttons[index].text = "Hide details" if expanded else "Show details"
 		_list.queue_sort()
-	)
+	, options)
 	_active_flip = null
 	_transitioning = false
+
+
+func _fade_in_detail(_started_layout: AnimeLayoutRuntime, detail: Label, transition_duration: float) -> void:
+	var tween := Anime.tween(detail)
+	tween.options.duration = minf(0.18, transition_duration)
+	tween.options.ease = AnimeEase.OUT_CUBIC
+	tween.track(AnimeCanvasItem.alpha_to(1.0))
+	tween.play()
 
 
 func _card_style(color: Color) -> StyleBoxFlat:

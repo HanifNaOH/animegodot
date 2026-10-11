@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (2.3)
+
+### Added
+
+- Per-update FLIP transition options, including base delay and staggered item timing.
+
 ## Unreleased (2.2)
 
 ### Added
