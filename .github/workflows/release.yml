@@ -19,6 +19,55 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Check release version is unused
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const version = fs.readFileSync('VERSION', 'utf8').trim();
+            if (!/^\d+\.\d+\.\d+$/.test(version)) {
+              core.setFailed(`VERSION must contain a semantic version, got '${version}'`);
+              return;
+            }
+
+            const tag = `v${version}`;
+            const isTagPush = context.eventName === 'push';
+            if (isTagPush && context.ref !== `refs/tags/${tag}`) {
+              core.setFailed(`Tag ${context.ref} does not match VERSION ${version}`);
+              return;
+            }
+
+            const isNewTagPush = isTagPush
+              && typeof context.payload.before === 'string'
+              && /^0+$/.test(context.payload.before);
+            if (isTagPush && !isNewTagPush) {
+              core.setFailed(`Tag ${tag} already existed; increment VERSION before publishing`);
+              return;
+            }
+
+            const { owner, repo } = context.repo;
+            try {
+              await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              core.setFailed(`Release ${tag} already exists; increment VERSION before publishing`);
+              return;
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+            }
+
+            if (!isTagPush) {
+              try {
+                await github.rest.git.getRef({ owner, repo, ref: `tags/${tag}` });
+                core.setFailed(`Tag ${tag} already exists; increment VERSION before publishing`);
+                return;
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+              }
+            }
+
       - name: Setup Godot
         uses: chickensoft-games/setup-godot@v2
         with:
