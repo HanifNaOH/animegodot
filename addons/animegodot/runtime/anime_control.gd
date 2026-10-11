@@ -20,6 +20,34 @@ static func position_to(value: Vector2) -> AnimeTrack:
 	return TRACK_SCRIPT.new(accessor, value)
 
 
+static func global_position_to(value: Vector2) -> AnimeTrack:
+	var accessor := ACCESSOR_SCRIPT.new(
+		KEY_SCRIPT.builtin(KEY_SCRIPT.Builtin.GLOBAL_POSITION),
+		func(target: Object) -> bool: return target is Control,
+		func(candidate: Variant) -> bool: return candidate is Vector2,
+		func(target: Object) -> Variant: return (target as Control).global_position,
+		func(target: Object, candidate: Variant) -> void:
+			var control := target as Control
+			control.global_position = candidate,
+		func(_target: Object) -> NodePath: return NodePath("global_position")
+	)
+	return TRACK_SCRIPT.new(accessor, value)
+
+
+static func size_to(value: Vector2) -> AnimeTrack:
+	var accessor := ACCESSOR_SCRIPT.new(
+		KEY_SCRIPT.builtin(KEY_SCRIPT.Builtin.SIZE),
+		func(target: Object) -> bool: return target is Control,
+		func(candidate: Variant) -> bool: return candidate is Vector2,
+		func(target: Object) -> Variant: return (target as Control).size,
+		func(target: Object, candidate: Variant) -> void:
+			var control := target as Control
+			control.size = candidate,
+		func(_target: Object) -> NodePath: return NodePath("size")
+	)
+	return TRACK_SCRIPT.new(accessor, value)
+
+
 static func custom_minimum_size_to(value: Vector2) -> AnimeTrack:
 	var accessor := ACCESSOR_SCRIPT.new(
 		KEY_SCRIPT.builtin(KEY_SCRIPT.Builtin.CUSTOM_MINIMUM_SIZE),

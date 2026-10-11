@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (2.2)
+
+### Added
+
+- Initial Control-focused FLIP layout transitions for existing items that persist through a layout reorder or resize.
+
 ## Unreleased (2.1)
 
 ### Added

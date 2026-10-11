@@ -1,0 +1,1590 @@
+[gd_scene format=3 uid="uid://cy6630r45uxbv"]
+
+[ext_resource type="Script" uid="uid://bl0dg16px1wrx" path="res://examples/periodic_table/periodic_table_demo.gd" id="1_chbbo"]
+[ext_resource type="PackedScene" uid="uid://dttp4jfvk6ll8" path="res://examples/periodic_table/periodic_table_element_card.tscn" id="2_card"]
+
+[sub_resource type="Environment" id="Environment_gkma5"]
+background_mode = 1
+background_color = Color(0.018, 0.027, 0.031, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.73, 0.68, 1)
+ambient_light_energy = 0.72
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p2vvf"]
+bg_color = Color(0.035, 0.052, 0.053, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23, 0.34, 0.3, 0.72)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ig8a"]
+bg_color = Color(0.09, 0.13, 0.13, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vr1sw"]
+bg_color = Color(0.39, 0.8, 0.64, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wodmx"]
+bg_color = Color(0.14, 0.21, 0.19, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_o0p6y"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x3j6e"]
+bg_color = Color(0.09, 0.13, 0.13, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bugy5"]
+bg_color = Color(0.39, 0.8, 0.64, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h6rkw"]
+bg_color = Color(0.14, 0.21, 0.19, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_malpe"]
+bg_color = Color(0.09, 0.13, 0.13, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_84rvj"]
+bg_color = Color(0.39, 0.8, 0.64, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rmv8d"]
+bg_color = Color(0.14, 0.21, 0.19, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_154ub"]
+bg_color = Color(0.09, 0.13, 0.13, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g1flp"]
+bg_color = Color(0.39, 0.8, 0.64, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j4foa"]
+bg_color = Color(0.14, 0.21, 0.19, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5u1hc"]
+bg_color = Color(0.035, 0.052, 0.053, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23, 0.34, 0.3, 0.72)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="PeriodicTableDemo" type="Node3D" unique_id=1290769577]
+script = ExtResource("1_chbbo")
+
+[node name="@WorldEnvironment@2" type="WorldEnvironment" parent="." unique_id=668362237]
+environment = SubResource("Environment_gkma5")
+
+[node name="@DirectionalLight3D@3" type="DirectionalLight3D" parent="." unique_id=1075573164]
+transform = Transform3D(0.9135454, 0.21553758, -0.34493223, 0, 0.8480481, 0.52991927, 0.40673664, -0.48410532, 0.77473044, 0, 0, 0)
+light_energy = 1.35
+
+[node name="LayoutCamera" type="Camera3D" parent="." unique_id=763241000]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+current = true
+fov = 42.0
+
+[node name="ElementStage" type="Node3D" parent="." unique_id=908496750]
+unique_name_in_owner = true
+
+[node name="Element001_H" parent="ElementStage" unique_id=1996660946 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, 4.64, 0)
+
+[node name="Element002_He" parent="ElementStage" unique_id=470098943 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, 4.64, 0)
+atomic_number = 2
+symbol = "He"
+element_name = "Helium"
+details = "MASS  4.0026022 u
+DENSITY  0.1786 g/cm3
+MELTS  -272.2 C
+BOILS  -268.93 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element003_Li" parent="ElementStage" unique_id=426246347 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, 3.48, 0)
+atomic_number = 3
+symbol = "Li"
+element_name = "Lithium"
+details = "MASS  6.94 u
+DENSITY  0.534 g/cm3
+MELTS  180.5 C
+BOILS  1329.85 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element004_Be" parent="ElementStage" unique_id=532324985 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, 3.48, 0)
+atomic_number = 4
+symbol = "Be"
+element_name = "Beryllium"
+details = "MASS  9.01218315 u
+DENSITY  1.85 g/cm3
+MELTS  1286.85 C
+BOILS  2468.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element005_B" parent="ElementStage" unique_id=650716983 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 3.48, 0)
+atomic_number = 5
+symbol = "B"
+element_name = "Boron"
+details = "MASS  10.81 u
+DENSITY  2.08 g/cm3
+MELTS  2075.85 C
+BOILS  3926.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element006_C" parent="ElementStage" unique_id=1387004877 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, 3.48, 0)
+atomic_number = 6
+symbol = "C"
+element_name = "Carbon"
+details = "MASS  12.011 u
+DENSITY  1.821 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+
+[node name="Element007_N" parent="ElementStage" unique_id=454065598 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, 3.48, 0)
+atomic_number = 7
+symbol = "N"
+element_name = "Nitrogen"
+details = "MASS  14.007 u
+DENSITY  1.251 g/cm3
+MELTS  -210 C
+BOILS  -195.79 C"
+
+[node name="Element008_O" parent="ElementStage" unique_id=548678637 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, 3.48, 0)
+atomic_number = 8
+symbol = "O"
+element_name = "Oxygen"
+details = "MASS  15.999 u
+DENSITY  1.429 g/cm3
+MELTS  -218.79 C
+BOILS  -182.96 C"
+
+[node name="Element009_F" parent="ElementStage" unique_id=966668343 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, 3.48, 0)
+atomic_number = 9
+symbol = "F"
+element_name = "Fluorine"
+details = "MASS  18.9984031636 u
+DENSITY  1.696 g/cm3
+MELTS  -219.67 C
+BOILS  -188.12 C"
+category_color = Color(0.88, 0.48, 0.59, 1)
+
+[node name="Element010_Ne" parent="ElementStage" unique_id=180631898 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, 3.48, 0)
+atomic_number = 10
+symbol = "Ne"
+element_name = "Neon"
+details = "MASS  20.17976 u
+DENSITY  0.9002 g/cm3
+MELTS  -248.59 C
+BOILS  -246.05 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element011_Na" parent="ElementStage" unique_id=1395372265 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, 2.32, 0)
+atomic_number = 11
+symbol = "Na"
+element_name = "Sodium"
+details = "MASS  22.989769282 u
+DENSITY  0.968 g/cm3
+MELTS  97.79 C
+BOILS  882.94 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element012_Mg" parent="ElementStage" unique_id=723722886 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, 2.32, 0)
+atomic_number = 12
+symbol = "Mg"
+element_name = "Magnesium"
+details = "MASS  24.305 u
+DENSITY  1.738 g/cm3
+MELTS  649.85 C
+BOILS  1089.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element013_Al" parent="ElementStage" unique_id=807326129 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 2.32, 0)
+atomic_number = 13
+symbol = "Al"
+element_name = "Aluminum"
+details = "MASS  26.98153857 u
+DENSITY  2.7 g/cm3
+MELTS  660.32 C
+BOILS  2469.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element014_Si" parent="ElementStage" unique_id=1434416820 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, 2.32, 0)
+atomic_number = 14
+symbol = "Si"
+element_name = "Silicon"
+details = "MASS  28.085 u
+DENSITY  2.329 g/cm3
+MELTS  1413.85 C
+BOILS  3264.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element015_P" parent="ElementStage" unique_id=1558508595 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, 2.32, 0)
+atomic_number = 15
+symbol = "P"
+element_name = "Phosphorus"
+details = "MASS  30.9737619985 u
+DENSITY  1.823 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+
+[node name="Element016_S" parent="ElementStage" unique_id=1695778502 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, 2.32, 0)
+atomic_number = 16
+symbol = "S"
+element_name = "Sulfur"
+details = "MASS  32.06 u
+DENSITY  2.07 g/cm3
+MELTS  115.21 C
+BOILS  444.65 C"
+
+[node name="Element017_Cl" parent="ElementStage" unique_id=901112095 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, 2.32, 0)
+atomic_number = 17
+symbol = "Cl"
+element_name = "Chlorine"
+details = "MASS  35.45 u
+DENSITY  3.2 g/cm3
+MELTS  -101.55 C
+BOILS  -34.04 C"
+category_color = Color(0.88, 0.48, 0.59, 1)
+
+[node name="Element018_Ar" parent="ElementStage" unique_id=2033889068 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, 2.32, 0)
+atomic_number = 18
+symbol = "Ar"
+element_name = "Argon"
+details = "MASS  39.9481 u
+DENSITY  1.784 g/cm3
+MELTS  -189.34 C
+BOILS  -185.85 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element019_K" parent="ElementStage" unique_id=154636080 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, 1.16, 0)
+atomic_number = 19
+symbol = "K"
+element_name = "Potassium"
+details = "MASS  39.09831 u
+DENSITY  0.862 g/cm3
+MELTS  63.55 C
+BOILS  758.85 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element020_Ca" parent="ElementStage" unique_id=357755890 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, 1.16, 0)
+atomic_number = 20
+symbol = "Ca"
+element_name = "Calcium"
+details = "MASS  40.0784 u
+DENSITY  1.55 g/cm3
+MELTS  841.85 C
+BOILS  1483.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element021_Sc" parent="ElementStage" unique_id=1863618185 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.825, 1.16, 0)
+atomic_number = 21
+symbol = "Sc"
+element_name = "Scandium"
+details = "MASS  44.9559085 u
+DENSITY  2.985 g/cm3
+MELTS  1540.85 C
+BOILS  2835.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element022_Ti" parent="ElementStage" unique_id=854209373 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, 1.16, 0)
+atomic_number = 22
+symbol = "Ti"
+element_name = "Titanium"
+details = "MASS  47.8671 u
+DENSITY  4.506 g/cm3
+MELTS  1667.85 C
+BOILS  3286.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element023_V" parent="ElementStage" unique_id=1184436176 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, 1.16, 0)
+atomic_number = 23
+symbol = "V"
+element_name = "Vanadium"
+details = "MASS  50.94151 u
+DENSITY  6 g/cm3
+MELTS  1909.85 C
+BOILS  3406.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element024_Cr" parent="ElementStage" unique_id=19027240 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 1.16, 0)
+atomic_number = 24
+symbol = "Cr"
+element_name = "Chromium"
+details = "MASS  51.99616 u
+DENSITY  7.19 g/cm3
+MELTS  1906.85 C
+BOILS  2670.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element025_Mn" parent="ElementStage" unique_id=1749068772 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 1.16, 0)
+atomic_number = 25
+symbol = "Mn"
+element_name = "Manganese"
+details = "MASS  54.9380443 u
+DENSITY  7.21 g/cm3
+MELTS  1245.85 C
+BOILS  2060.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element026_Fe" parent="ElementStage" unique_id=1261124662 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 1.16, 0)
+atomic_number = 26
+symbol = "Fe"
+element_name = "Iron"
+details = "MASS  55.8452 u
+DENSITY  7.874 g/cm3
+MELTS  1537.85 C
+BOILS  2860.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element027_Co" parent="ElementStage" unique_id=794357125 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 1.16, 0)
+atomic_number = 27
+symbol = "Co"
+element_name = "Cobalt"
+details = "MASS  58.9331944 u
+DENSITY  8.9 g/cm3
+MELTS  1494.85 C
+BOILS  2926.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element028_Ni" parent="ElementStage" unique_id=642847293 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 1.16, 0)
+atomic_number = 28
+symbol = "Ni"
+element_name = "Nickel"
+details = "MASS  58.69344 u
+DENSITY  8.908 g/cm3
+MELTS  1454.85 C
+BOILS  2729.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element029_Cu" parent="ElementStage" unique_id=268689448 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 1.16, 0)
+atomic_number = 29
+symbol = "Cu"
+element_name = "Copper"
+details = "MASS  63.5463 u
+DENSITY  8.96 g/cm3
+MELTS  1084.62 C
+BOILS  2561.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element030_Zn" parent="ElementStage" unique_id=555305145 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 1.16, 0)
+atomic_number = 30
+symbol = "Zn"
+element_name = "Zinc"
+details = "MASS  65.382 u
+DENSITY  7.14 g/cm3
+MELTS  419.53 C
+BOILS  906.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element031_Ga" parent="ElementStage" unique_id=1252446128 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 1.16, 0)
+atomic_number = 31
+symbol = "Ga"
+element_name = "Gallium"
+details = "MASS  69.7231 u
+DENSITY  5.91 g/cm3
+MELTS  29.76 C
+BOILS  2399.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element032_Ge" parent="ElementStage" unique_id=626519106 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, 1.16, 0)
+atomic_number = 32
+symbol = "Ge"
+element_name = "Germanium"
+details = "MASS  72.6308 u
+DENSITY  5.323 g/cm3
+MELTS  938.25 C
+BOILS  2832.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element033_As" parent="ElementStage" unique_id=1931482845 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, 1.16, 0)
+atomic_number = 33
+symbol = "As"
+element_name = "Arsenic"
+details = "MASS  74.9215956 u
+DENSITY  5.727 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element034_Se" parent="ElementStage" unique_id=1614849307 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, 1.16, 0)
+atomic_number = 34
+symbol = "Se"
+element_name = "Selenium"
+details = "MASS  78.9718 u
+DENSITY  4.81 g/cm3
+MELTS  220.85 C
+BOILS  684.85 C"
+
+[node name="Element035_Br" parent="ElementStage" unique_id=1587648024 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, 1.16, 0)
+atomic_number = 35
+symbol = "Br"
+element_name = "Bromine"
+details = "MASS  79.904 u
+DENSITY  3.1028 g/cm3
+MELTS  -7.35 C
+BOILS  58.85 C"
+category_color = Color(0.88, 0.48, 0.59, 1)
+
+[node name="Element036_Kr" parent="ElementStage" unique_id=1654899629 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, 1.16, 0)
+atomic_number = 36
+symbol = "Kr"
+element_name = "Krypton"
+details = "MASS  83.7982 u
+DENSITY  3.749 g/cm3
+MELTS  -157.37 C
+BOILS  -153.22 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element037_Rb" parent="ElementStage" unique_id=1284786118 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, 0, 0)
+atomic_number = 37
+symbol = "Rb"
+element_name = "Rubidium"
+details = "MASS  85.46783 u
+DENSITY  1.532 g/cm3
+MELTS  39.3 C
+BOILS  687.85 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element038_Sr" parent="ElementStage" unique_id=577498142 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, 0, 0)
+atomic_number = 38
+symbol = "Sr"
+element_name = "Strontium"
+details = "MASS  87.621 u
+DENSITY  2.64 g/cm3
+MELTS  776.85 C
+BOILS  1376.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element039_Y" parent="ElementStage" unique_id=597633011 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.825, 0, 0)
+atomic_number = 39
+symbol = "Y"
+element_name = "Yttrium"
+details = "MASS  88.905842 u
+DENSITY  4.472 g/cm3
+MELTS  1525.85 C
+BOILS  2929.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element040_Zr" parent="ElementStage" unique_id=1708058818 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, 0, 0)
+atomic_number = 40
+symbol = "Zr"
+element_name = "Zirconium"
+details = "MASS  91.2242 u
+DENSITY  6.52 g/cm3
+MELTS  1854.85 C
+BOILS  4376.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element041_Nb" parent="ElementStage" unique_id=613872341 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, 0, 0)
+atomic_number = 41
+symbol = "Nb"
+element_name = "Niobium"
+details = "MASS  92.906372 u
+DENSITY  8.57 g/cm3
+MELTS  2476.85 C
+BOILS  4743.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element042_Mo" parent="ElementStage" unique_id=1348507384 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, 0)
+atomic_number = 42
+symbol = "Mo"
+element_name = "Molybdenum"
+details = "MASS  95.951 u
+DENSITY  10.28 g/cm3
+MELTS  2622.85 C
+BOILS  4638.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element043_Tc" parent="ElementStage" unique_id=1958678603 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, 0)
+atomic_number = 43
+symbol = "Tc"
+element_name = "Technetium"
+details = "MASS  98 u
+DENSITY  11 g/cm3
+MELTS  2156.85 C
+BOILS  4264.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element044_Ru" parent="ElementStage" unique_id=1515612007 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, 0)
+atomic_number = 44
+symbol = "Ru"
+element_name = "Ruthenium"
+details = "MASS  101.072 u
+DENSITY  12.45 g/cm3
+MELTS  2333.85 C
+BOILS  4149.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element045_Rh" parent="ElementStage" unique_id=1363792079 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, 0)
+atomic_number = 45
+symbol = "Rh"
+element_name = "Rhodium"
+details = "MASS  102.905502 u
+DENSITY  12.41 g/cm3
+MELTS  1963.85 C
+BOILS  3694.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element046_Pd" parent="ElementStage" unique_id=628887682 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, 0)
+atomic_number = 46
+symbol = "Pd"
+element_name = "Palladium"
+details = "MASS  106.421 u
+DENSITY  12.023 g/cm3
+MELTS  1554.9 C
+BOILS  2962.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element047_Ag" parent="ElementStage" unique_id=1974847081 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, 0)
+atomic_number = 47
+symbol = "Ag"
+element_name = "Silver"
+details = "MASS  107.86822 u
+DENSITY  10.49 g/cm3
+MELTS  961.78 C
+BOILS  2161.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element048_Cd" parent="ElementStage" unique_id=1015803728 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, 0)
+atomic_number = 48
+symbol = "Cd"
+element_name = "Cadmium"
+details = "MASS  112.4144 u
+DENSITY  8.65 g/cm3
+MELTS  321.07 C
+BOILS  766.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element049_In" parent="ElementStage" unique_id=2062529981 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, 0)
+atomic_number = 49
+symbol = "In"
+element_name = "Indium"
+details = "MASS  114.8181 u
+DENSITY  7.31 g/cm3
+MELTS  156.6 C
+BOILS  2071.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element050_Sn" parent="ElementStage" unique_id=457853943 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, 0, 0)
+atomic_number = 50
+symbol = "Sn"
+element_name = "Tin"
+details = "MASS  118.7107 u
+DENSITY  7.365 g/cm3
+MELTS  231.93 C
+BOILS  2601.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element051_Sb" parent="ElementStage" unique_id=1832936825 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, 0, 0)
+atomic_number = 51
+symbol = "Sb"
+element_name = "Antimony"
+details = "MASS  121.7601 u
+DENSITY  6.697 g/cm3
+MELTS  630.63 C
+BOILS  1634.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element052_Te" parent="ElementStage" unique_id=2143393843 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, 0, 0)
+atomic_number = 52
+symbol = "Te"
+element_name = "Tellurium"
+details = "MASS  127.603 u
+DENSITY  6.24 g/cm3
+MELTS  449.51 C
+BOILS  987.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element053_I" parent="ElementStage" unique_id=92969437 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, 0, 0)
+atomic_number = 53
+symbol = "I"
+element_name = "Iodine"
+details = "MASS  126.904473 u
+DENSITY  4.933 g/cm3
+MELTS  113.7 C
+BOILS  184.25 C"
+category_color = Color(0.88, 0.48, 0.59, 1)
+
+[node name="Element054_Xe" parent="ElementStage" unique_id=2025682087 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, 0, 0)
+atomic_number = 54
+symbol = "Xe"
+element_name = "Xenon"
+details = "MASS  131.2936 u
+DENSITY  5.894 g/cm3
+MELTS  -111.75 C
+BOILS  -108.1 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element055_Cs" parent="ElementStage" unique_id=1242951680 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, -1.16, 0)
+atomic_number = 55
+symbol = "Cs"
+element_name = "Cesium"
+details = "MASS  132.905451966 u
+DENSITY  1.93 g/cm3
+MELTS  28.55 C
+BOILS  670.85 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element056_Ba" parent="ElementStage" unique_id=1951270478 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, -1.16, 0)
+atomic_number = 56
+symbol = "Ba"
+element_name = "Barium"
+details = "MASS  137.3277 u
+DENSITY  3.51 g/cm3
+MELTS  726.85 C
+BOILS  1844.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element057_La" parent="ElementStage" unique_id=1611172500 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.825, -1.16, 0)
+atomic_number = 57
+symbol = "La"
+element_name = "Lanthanum"
+details = "MASS  138.905477 u
+DENSITY  6.162 g/cm3
+MELTS  919.85 C
+BOILS  3463.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element058_Ce" parent="ElementStage" unique_id=217341647 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, -3.48, 0)
+atomic_number = 58
+symbol = "Ce"
+element_name = "Cerium"
+details = "MASS  140.1161 u
+DENSITY  6.77 g/cm3
+MELTS  794.85 C
+BOILS  3442.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element059_Pr" parent="ElementStage" unique_id=311113166 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, -3.48, 0)
+atomic_number = 59
+symbol = "Pr"
+element_name = "Praseodymium"
+details = "MASS  140.907662 u
+DENSITY  6.77 g/cm3
+MELTS  934.85 C
+BOILS  3129.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element060_Nd" parent="ElementStage" unique_id=79279380 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, -3.48, 0)
+atomic_number = 60
+symbol = "Nd"
+element_name = "Neodymium"
+details = "MASS  144.2423 u
+DENSITY  7.01 g/cm3
+MELTS  1023.85 C
+BOILS  3073.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element061_Pm" parent="ElementStage" unique_id=2066363509 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, -3.48, 0)
+atomic_number = 61
+symbol = "Pm"
+element_name = "Promethium"
+details = "MASS  145 u
+DENSITY  7.26 g/cm3
+MELTS  1041.85 C
+BOILS  2999.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element062_Sm" parent="ElementStage" unique_id=2051769559 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, -3.48, 0)
+atomic_number = 62
+symbol = "Sm"
+element_name = "Samarium"
+details = "MASS  150.362 u
+DENSITY  7.52 g/cm3
+MELTS  1071.85 C
+BOILS  1899.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element063_Eu" parent="ElementStage" unique_id=3425314 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, -3.48, 0)
+atomic_number = 63
+symbol = "Eu"
+element_name = "Europium"
+details = "MASS  151.9641 u
+DENSITY  5.264 g/cm3
+MELTS  825.85 C
+BOILS  1528.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element064_Gd" parent="ElementStage" unique_id=122001579 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, -3.48, 0)
+atomic_number = 64
+symbol = "Gd"
+element_name = "Gadolinium"
+details = "MASS  157.253 u
+DENSITY  7.9 g/cm3
+MELTS  1311.85 C
+BOILS  2999.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element065_Tb" parent="ElementStage" unique_id=968904244 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, -3.48, 0)
+atomic_number = 65
+symbol = "Tb"
+element_name = "Terbium"
+details = "MASS  158.925352 u
+DENSITY  8.23 g/cm3
+MELTS  1355.85 C
+BOILS  3122.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element066_Dy" parent="ElementStage" unique_id=1692790813 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, -3.48, 0)
+atomic_number = 66
+symbol = "Dy"
+element_name = "Dysprosium"
+details = "MASS  162.5001 u
+DENSITY  8.54 g/cm3
+MELTS  1406.85 C
+BOILS  2566.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element067_Ho" parent="ElementStage" unique_id=993947270 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, -3.48, 0)
+atomic_number = 67
+symbol = "Ho"
+element_name = "Holmium"
+details = "MASS  164.930332 u
+DENSITY  8.79 g/cm3
+MELTS  1460.85 C
+BOILS  2599.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element068_Er" parent="ElementStage" unique_id=917391123 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, -3.48, 0)
+atomic_number = 68
+symbol = "Er"
+element_name = "Erbium"
+details = "MASS  167.2593 u
+DENSITY  9.066 g/cm3
+MELTS  1528.85 C
+BOILS  2867.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element069_Tm" parent="ElementStage" unique_id=1144285554 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, -3.48, 0)
+atomic_number = 69
+symbol = "Tm"
+element_name = "Thulium"
+details = "MASS  168.934222 u
+DENSITY  9.32 g/cm3
+MELTS  1544.85 C
+BOILS  1949.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element070_Yb" parent="ElementStage" unique_id=1087314547 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, -3.48, 0)
+atomic_number = 70
+symbol = "Yb"
+element_name = "Ytterbium"
+details = "MASS  173.0451 u
+DENSITY  6.9 g/cm3
+MELTS  823.85 C
+BOILS  1195.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element071_Lu" parent="ElementStage" unique_id=58469690 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, -3.48, 0)
+atomic_number = 71
+symbol = "Lu"
+element_name = "Lutetium"
+details = "MASS  174.96681 u
+DENSITY  9.841 g/cm3
+MELTS  1651.85 C
+BOILS  3401.85 C"
+category_color = Color(0.4, 0.6, 0.82, 1)
+
+[node name="Element072_Hf" parent="ElementStage" unique_id=1440949561 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, -1.16, 0)
+atomic_number = 72
+symbol = "Hf"
+element_name = "Hafnium"
+details = "MASS  178.492 u
+DENSITY  13.31 g/cm3
+MELTS  2232.85 C
+BOILS  4602.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element073_Ta" parent="ElementStage" unique_id=787241974 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, -1.16, 0)
+atomic_number = 73
+symbol = "Ta"
+element_name = "Tantalum"
+details = "MASS  180.947882 u
+DENSITY  16.69 g/cm3
+MELTS  3016.85 C
+BOILS  5457.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element074_W" parent="ElementStage" unique_id=1601524967 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, -1.16, 0)
+atomic_number = 74
+symbol = "W"
+element_name = "Tungsten"
+details = "MASS  183.841 u
+DENSITY  19.25 g/cm3
+MELTS  3421.85 C
+BOILS  5929.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element075_Re" parent="ElementStage" unique_id=201748015 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, -1.16, 0)
+atomic_number = 75
+symbol = "Re"
+element_name = "Rhenium"
+details = "MASS  186.2071 u
+DENSITY  21.02 g/cm3
+MELTS  3185.85 C
+BOILS  5595.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element076_Os" parent="ElementStage" unique_id=2118912365 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, -1.16, 0)
+atomic_number = 76
+symbol = "Os"
+element_name = "Osmium"
+details = "MASS  190.233 u
+DENSITY  22.59 g/cm3
+MELTS  3032.85 C
+BOILS  5011.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element077_Ir" parent="ElementStage" unique_id=1763614162 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, -1.16, 0)
+atomic_number = 77
+symbol = "Ir"
+element_name = "Iridium"
+details = "MASS  192.2173 u
+DENSITY  22.56 g/cm3
+MELTS  2445.85 C
+BOILS  4129.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element078_Pt" parent="ElementStage" unique_id=1047785587 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, -1.16, 0)
+atomic_number = 78
+symbol = "Pt"
+element_name = "Platinum"
+details = "MASS  195.0849 u
+DENSITY  21.45 g/cm3
+MELTS  1768.25 C
+BOILS  3824.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element079_Au" parent="ElementStage" unique_id=1933515162 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, -1.16, 0)
+atomic_number = 79
+symbol = "Au"
+element_name = "Gold"
+details = "MASS  196.9665695 u
+DENSITY  19.3 g/cm3
+MELTS  1064.18 C
+BOILS  2969.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element080_Hg" parent="ElementStage" unique_id=844686127 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, -1.16, 0)
+atomic_number = 80
+symbol = "Hg"
+element_name = "Mercury"
+details = "MASS  200.5923 u
+DENSITY  13.534 g/cm3
+MELTS  -38.83 C
+BOILS  356.73 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element081_Tl" parent="ElementStage" unique_id=20409815 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, -1.16, 0)
+atomic_number = 81
+symbol = "Tl"
+element_name = "Thallium"
+details = "MASS  204.38 u
+DENSITY  11.85 g/cm3
+MELTS  303.85 C
+BOILS  1472.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element082_Pb" parent="ElementStage" unique_id=1943763933 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, -1.16, 0)
+atomic_number = 82
+symbol = "Pb"
+element_name = "Lead"
+details = "MASS  207.21 u
+DENSITY  11.34 g/cm3
+MELTS  327.46 C
+BOILS  1748.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element083_Bi" parent="ElementStage" unique_id=963533186 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, -1.16, 0)
+atomic_number = 83
+symbol = "Bi"
+element_name = "Bismuth"
+details = "MASS  208.980401 u
+DENSITY  9.78 g/cm3
+MELTS  271.55 C
+BOILS  1563.85 C"
+category_color = Color(0.51, 0.72, 0.83, 1)
+
+[node name="Element084_Po" parent="ElementStage" unique_id=1735196639 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, -1.16, 0)
+atomic_number = 84
+symbol = "Po"
+element_name = "Polonium"
+details = "MASS  209 u
+DENSITY  9.196 g/cm3
+MELTS  253.85 C
+BOILS  961.85 C"
+category_color = Color(0.84, 0.81, 0.4, 1)
+
+[node name="Element085_At" parent="ElementStage" unique_id=2086578578 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, -1.16, 0)
+atomic_number = 85
+symbol = "At"
+element_name = "Astatine"
+details = "MASS  210 u
+DENSITY  6.35 g/cm3
+MELTS  301.85 C
+BOILS  336.85 C"
+category_color = Color(0.88, 0.48, 0.59, 1)
+
+[node name="Element086_Rn" parent="ElementStage" unique_id=628013594 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, -1.16, 0)
+atomic_number = 86
+symbol = "Rn"
+element_name = "Radon"
+details = "MASS  222 u
+DENSITY  9.73 g/cm3
+MELTS  -71.15 C
+BOILS  -61.65 C"
+category_color = Color(0.3, 0.77, 0.82, 1)
+
+[node name="Element087_Fr" parent="ElementStage" unique_id=1368029234 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.925, -2.32, 0)
+atomic_number = 87
+symbol = "Fr"
+element_name = "Francium"
+details = "MASS  223 u
+DENSITY  1.87 g/cm3
+MELTS  26.85 C
+BOILS  676.85 C"
+category_color = Color(0.94, 0.48, 0.38, 1)
+
+[node name="Element088_Ra" parent="ElementStage" unique_id=710416936 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.875, -2.32, 0)
+atomic_number = 88
+symbol = "Ra"
+element_name = "Radium"
+details = "MASS  226 u
+DENSITY  5.5 g/cm3
+MELTS  959.85 C
+BOILS  1736.85 C"
+category_color = Color(0.94, 0.68, 0.36, 1)
+
+[node name="Element089_Ac" parent="ElementStage" unique_id=924148557 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.825, -2.32, 0)
+atomic_number = 89
+symbol = "Ac"
+element_name = "Actinium"
+details = "MASS  227 u
+DENSITY  10 g/cm3
+MELTS  1226.85 C
+BOILS  3226.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element090_Th" parent="ElementStage" unique_id=953723818 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, -4.64, 0)
+atomic_number = 90
+symbol = "Th"
+element_name = "Thorium"
+details = "MASS  232.03774 u
+DENSITY  11.724 g/cm3
+MELTS  1749.85 C
+BOILS  4787.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element091_Pa" parent="ElementStage" unique_id=906965099 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, -4.64, 0)
+atomic_number = 91
+symbol = "Pa"
+element_name = "Protactinium"
+details = "MASS  231.035882 u
+DENSITY  15.37 g/cm3
+MELTS  1567.85 C
+BOILS  4026.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element092_U" parent="ElementStage" unique_id=2004771867 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, -4.64, 0)
+atomic_number = 92
+symbol = "U"
+element_name = "Uranium"
+details = "MASS  238.028913 u
+DENSITY  19.1 g/cm3
+MELTS  1132.15 C
+BOILS  4130.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element093_Np" parent="ElementStage" unique_id=2073854802 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, -4.64, 0)
+atomic_number = 93
+symbol = "Np"
+element_name = "Neptunium"
+details = "MASS  237 u
+DENSITY  20.45 g/cm3
+MELTS  638.85 C
+BOILS  4173.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element094_Pu" parent="ElementStage" unique_id=1100977937 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, -4.64, 0)
+atomic_number = 94
+symbol = "Pu"
+element_name = "Plutonium"
+details = "MASS  244 u
+DENSITY  19.816 g/cm3
+MELTS  639.35 C
+BOILS  3231.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element095_Am" parent="ElementStage" unique_id=1661427791 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, -4.64, 0)
+atomic_number = 95
+symbol = "Am"
+element_name = "Americium"
+details = "MASS  243 u
+DENSITY  12 g/cm3
+MELTS  1175.85 C
+BOILS  2606.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element096_Cm" parent="ElementStage" unique_id=211197192 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, -4.64, 0)
+atomic_number = 96
+symbol = "Cm"
+element_name = "Curium"
+details = "MASS  247 u
+DENSITY  13.51 g/cm3
+MELTS  1339.85 C
+BOILS  3109.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element097_Bk" parent="ElementStage" unique_id=1904064063 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, -4.64, 0)
+atomic_number = 97
+symbol = "Bk"
+element_name = "Berkelium"
+details = "MASS  247 u
+DENSITY  14.78 g/cm3
+MELTS  985.85 C
+BOILS  2626.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element098_Cf" parent="ElementStage" unique_id=187747655 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, -4.64, 0)
+atomic_number = 98
+symbol = "Cf"
+element_name = "Californium"
+details = "MASS  251 u
+DENSITY  15.1 g/cm3
+MELTS  899.85 C
+BOILS  1469.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element099_Es" parent="ElementStage" unique_id=558279533 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, -4.64, 0)
+atomic_number = 99
+symbol = "Es"
+element_name = "Einsteinium"
+details = "MASS  252 u
+DENSITY  8.84 g/cm3
+MELTS  859.85 C
+BOILS  995.85 C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element100_Fm" parent="ElementStage" unique_id=1796526199 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, -4.64, 0)
+atomic_number = 100
+symbol = "Fm"
+element_name = "Fermium"
+details = "MASS  257 u
+DENSITY  n/a g/cm3
+MELTS  1526.85 C
+BOILS  n/a C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element101_Md" parent="ElementStage" unique_id=62572385 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, -4.64, 0)
+atomic_number = 101
+symbol = "Md"
+element_name = "Mendelevium"
+details = "MASS  258 u
+DENSITY  n/a g/cm3
+MELTS  826.85 C
+BOILS  n/a C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element102_No" parent="ElementStage" unique_id=77042095 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, -4.64, 0)
+atomic_number = 102
+symbol = "No"
+element_name = "Nobelium"
+details = "MASS  259 u
+DENSITY  n/a g/cm3
+MELTS  826.85 C
+BOILS  n/a C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element103_Lr" parent="ElementStage" unique_id=1321636874 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, -4.64, 0)
+atomic_number = 103
+symbol = "Lr"
+element_name = "Lawrencium"
+details = "MASS  266 u
+DENSITY  n/a g/cm3
+MELTS  1626.85 C
+BOILS  n/a C"
+category_color = Color(0.76, 0.52, 0.75, 1)
+
+[node name="Element104_Rf" parent="ElementStage" unique_id=648042810 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.775, -2.32, 0)
+atomic_number = 104
+symbol = "Rf"
+element_name = "Rutherfordium"
+details = "MASS  267 u
+DENSITY  23.2 g/cm3
+MELTS  2126.85 C
+BOILS  5526.85 C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element105_Db" parent="ElementStage" unique_id=799957746 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.725, -2.32, 0)
+atomic_number = 105
+symbol = "Db"
+element_name = "Dubnium"
+details = "MASS  268 u
+DENSITY  29.3 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element106_Sg" parent="ElementStage" unique_id=1664501858 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, -2.32, 0)
+atomic_number = 106
+symbol = "Sg"
+element_name = "Seaborgium"
+details = "MASS  269 u
+DENSITY  35 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element107_Bh" parent="ElementStage" unique_id=1264818871 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, -2.32, 0)
+atomic_number = 107
+symbol = "Bh"
+element_name = "Bohrium"
+details = "MASS  270 u
+DENSITY  37.1 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element108_Hs" parent="ElementStage" unique_id=647538662 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, -2.32, 0)
+atomic_number = 108
+symbol = "Hs"
+element_name = "Hassium"
+details = "MASS  269 u
+DENSITY  40.7 g/cm3
+MELTS  -147.15 C
+BOILS  n/a C"
+category_color = Color(0.37, 0.79, 0.64, 1)
+
+[node name="Element109_Mt" parent="ElementStage" unique_id=2087348190 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, -2.32, 0)
+atomic_number = 109
+symbol = "Mt"
+element_name = "Meitnerium"
+details = "MASS  278 u
+DENSITY  37.4 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element110_Ds" parent="ElementStage" unique_id=916830906 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, -2.32, 0)
+atomic_number = 110
+symbol = "Ds"
+element_name = "Darmstadtium"
+details = "MASS  281 u
+DENSITY  34.8 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element111_Rg" parent="ElementStage" unique_id=2041613387 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, -2.32, 0)
+atomic_number = 111
+symbol = "Rg"
+element_name = "Roentgenium"
+details = "MASS  282 u
+DENSITY  28.7 g/cm3
+MELTS  n/a C
+BOILS  n/a C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element112_Cn" parent="ElementStage" unique_id=876224883 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, -2.32, 0)
+atomic_number = 112
+symbol = "Cn"
+element_name = "Copernicium"
+details = "MASS  285 u
+DENSITY  14 g/cm3
+MELTS  n/a C
+BOILS  3296.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element113_Nh" parent="ElementStage" unique_id=881776607 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, -2.32, 0)
+atomic_number = 113
+symbol = "Nh"
+element_name = "Nihonium"
+details = "MASS  286 u
+DENSITY  16 g/cm3
+MELTS  426.85 C
+BOILS  1156.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element114_Fl" parent="ElementStage" unique_id=355121032 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.725, -2.32, 0)
+atomic_number = 114
+symbol = "Fl"
+element_name = "Flerovium"
+details = "MASS  289 u
+DENSITY  14 g/cm3
+MELTS  66.85 C
+BOILS  146.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element115_Mc" parent="ElementStage" unique_id=9973571 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.775, -2.32, 0)
+atomic_number = 115
+symbol = "Mc"
+element_name = "Moscovium"
+details = "MASS  289 u
+DENSITY  13.5 g/cm3
+MELTS  396.85 C
+BOILS  1126.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element116_Lv" parent="ElementStage" unique_id=260020858 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.825, -2.32, 0)
+atomic_number = 116
+symbol = "Lv"
+element_name = "Livermorium"
+details = "MASS  293 u
+DENSITY  12.9 g/cm3
+MELTS  435.85 C
+BOILS  811.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element117_Ts" parent="ElementStage" unique_id=310392385 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.875, -2.32, 0)
+atomic_number = 117
+symbol = "Ts"
+element_name = "Tennessine"
+details = "MASS  294 u
+DENSITY  7.17 g/cm3
+MELTS  449.85 C
+BOILS  609.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="Element118_Og" parent="ElementStage" unique_id=321291686 instance=ExtResource("2_card")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.925, -2.32, 0)
+atomic_number = 118
+symbol = "Og"
+element_name = "Oganesson"
+details = "MASS  294 u
+DENSITY  4.95 g/cm3
+MELTS  n/a C
+BOILS  76.85 C"
+category_color = Color(0.56, 0.62, 0.62, 1)
+
+[node name="@CanvasLayer@948" type="CanvasLayer" parent="." unique_id=77037568]
+layer = 2
+
+[node name="@Control@949" type="Control" parent="@CanvasLayer@948" unique_id=1994284257]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="@MarginContainer@950" type="MarginContainer" parent="@CanvasLayer@948/@Control@949" unique_id=365587655]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="@VBoxContainer@951" type="VBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950" unique_id=1292284613]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="@PanelContainer@963" type="PanelContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951" unique_id=1269687741]
+custom_minimum_size = Vector2(0, 102)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p2vvf")
+
+[node name="@MarginContainer@952" type="MarginContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963" unique_id=683752939]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="@VBoxContainer@953" type="VBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952" unique_id=1139622807]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="@HBoxContainer@954" type="HBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953" unique_id=14352299]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="@VBoxContainer@955" type="VBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954" unique_id=2022673164]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="@Label@956" type="Label" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@VBoxContainer@955" unique_id=16424295]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.78, 0.64, 1)
+theme_override_font_sizes/font_size = 11
+text = "ELEMENT ATLAS  /  118 KNOWN ELEMENTS"
+
+[node name="@Label@957" type="Label" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@VBoxContainer@955" unique_id=907742743]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.96, 0.94, 1)
+theme_override_font_sizes/font_size = 22
+text = "Periodic table"
+
+[node name="@HBoxContainer@958" type="HBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954" unique_id=675470512]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TableButton" type="Button" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@HBoxContainer@958" unique_id=1605942355]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.1, 0.08, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_2ig8a")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_vr1sw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wodmx")
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_o0p6y")
+text = "table"
+
+[node name="SphereButton" type="Button" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@HBoxContainer@958" unique_id=2144565266]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.1, 0.08, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_x3j6e")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_bugy5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_h6rkw")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_o0p6y")
+text = "sphere"
+
+[node name="HelixButton" type="Button" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@HBoxContainer@958" unique_id=1799070233]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.1, 0.08, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_malpe")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_84rvj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_rmv8d")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_o0p6y")
+text = "helix"
+
+[node name="GridButton" type="Button" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@963/@MarginContainer@952/@VBoxContainer@953/@HBoxContainer@954/@HBoxContainer@958" unique_id=1879016563]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(74, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.7, 0.78, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.04, 0.1, 0.08, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_154ub")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_g1flp")
+theme_override_styles/hover = SubResource("StyleBoxFlat_j4foa")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_o0p6y")
+text = "grid"
+
+[node name="@Control@964" type="Control" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951" unique_id=1282504513]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="@PanelContainer@969" type="PanelContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951" unique_id=1533955424]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5u1hc")
+
+[node name="@MarginContainer@965" type="MarginContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@969" unique_id=1215212726]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 7
+
+[node name="@HBoxContainer@966" type="HBoxContainer" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@969/@MarginContainer@965" unique_id=732015607]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="LayoutStatus" type="Label" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@969/@MarginContainer@965/@HBoxContainer@966" unique_id=1969084519]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.82, 0.69, 1)
+theme_override_font_sizes/font_size = 11
+text = "TABLE  /  118 ELEMENTS"
+
+[node name="SelectionStatus" type="Label" parent="@CanvasLayer@948/@Control@949/@MarginContainer@950/@VBoxContainer@951/@PanelContainer@969/@MarginContainer@965/@HBoxContainer@966" unique_id=1150006683]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.71, 1)
+theme_override_font_sizes/font_size = 11
+text = "118 ELEMENTS  /  11 CLASSES"
+horizontal_alignment = 2
