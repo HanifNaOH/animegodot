@@ -3,6 +3,7 @@ extends GutTest
 const ANIME_SCRIPT = preload("res://addons/animegodot/runtime/anime.gd")
 const CONTROL_SCRIPT = preload("res://addons/animegodot/runtime/anime_control.gd")
 const NODE_2D_SCRIPT = preload("res://addons/animegodot/runtime/anime_node_2d.gd")
+const NODE_3D_SCRIPT = preload("res://addons/animegodot/runtime/anime_node_3d.gd")
 const POSITION_SCRIPT = preload("res://addons/animegodot/runtime/anime_position.gd")
 const PROPERTY_ACCESSOR_SCRIPT = preload("res://addons/animegodot/runtime/anime_property_accessor.gd")
 const PROPERTY_KEY_SCRIPT = preload("res://addons/animegodot/runtime/anime_property_key.gd")
@@ -36,6 +37,22 @@ func test_node2d_position_accessor_plays_typed_tween() -> void:
 	tween.play()
 	await tween.completed
 	_expect(target.position == Vector2(80.0, 40.0), "A typed Node2D position track should reach its endpoint")
+
+
+func test_node3d_transform_accessors_play_typed_tweens() -> void:
+	var target := Node3D.new()
+	add_child_autoqfree(target)
+	var tween = ANIME_SCRIPT.tween(target)
+	tween.options.duration = 0.02
+	tween.options.ease = AnimeEase.LINEAR
+	tween.track(NODE_3D_SCRIPT.position_to(Vector3(2.0, 3.0, 4.0)))
+	tween.track(NODE_3D_SCRIPT.rotation_to(Vector3(0.1, 0.2, 0.3)))
+	tween.track(NODE_3D_SCRIPT.scale_to(Vector3.ONE * 1.2))
+	tween.play()
+	await tween.completed
+	_expect(target.position.is_equal_approx(Vector3(2.0, 3.0, 4.0)), "Node3D position tracks should reach their endpoint")
+	_expect(target.rotation.is_equal_approx(Vector3(0.1, 0.2, 0.3)), "Node3D rotation tracks should reach their endpoint")
+	_expect(target.scale.is_equal_approx(Vector3.ONE * 1.2), "Node3D scale tracks should reach their endpoint")
 
 
 func test_from_from_to_and_set_use_typed_tracks() -> void:

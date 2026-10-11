@@ -355,5 +355,84 @@ func test_interpolation_helpers_and_custom_interpolator() -> void:
 	_expect(target.position == Vector2(20.0, 10.0), "A custom interpolator should reach the typed endpoint")
 
 
+func test_flip_animates_container_reorder_and_resize() -> void:
+	var scene_owner := Control.new()
+	scene_owner.size = Vector2(320.0, 240.0)
+	var container := VBoxContainer.new()
+	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	container.add_theme_constant_override("separation", 0)
+	scene_owner.add_child(container)
+	var first_slot := Control.new()
+	first_slot.custom_minimum_size = Vector2(120.0, 50.0)
+	first_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var first_visual := Control.new()
+	first_visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	first_slot.add_child(first_visual)
+	var second_slot := Control.new()
+	second_slot.custom_minimum_size = Vector2(120.0, 50.0)
+	second_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var second_visual := Control.new()
+	second_visual.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	second_slot.add_child(second_visual)
+	container.add_child(first_slot)
+	container.add_child(second_slot)
+	add_child_autoqfree(scene_owner)
+	await wait_process_frames(1)
+
+	var first_rect := first_slot.get_global_rect()
+	var flip_options := AnimeLayoutOptions.new()
+	flip_options.duration = 0.03
+	flip_options.ease = AnimeEase.LINEAR
+	var flip = ANIME_SCRIPT.flip(
+		[
+			AnimeLayoutItem.new(first_slot, first_visual),
+			AnimeLayoutItem.new(second_slot, second_visual),
+		],
+		flip_options
+	)
+	container.move_child(second_slot, 0)
+	first_slot.custom_minimum_size = Vector2(180.0, 70.0)
+	container.queue_sort()
+	await wait_process_frames(1)
+	var final_rect := first_slot.get_global_rect()
+	_expect(first_rect.position != final_rect.position, "The Container should move a reordered layout item")
+	_expect(first_rect.size != final_rect.size, "The Container should resize the layout item")
+
+	flip.play()
+	_expect(
+		first_visual.global_position.is_equal_approx(first_rect.position),
+		"FLIP should visually begin at the captured first position"
+	)
+	await flip.completed
+	_expect(
+		first_visual.global_position.is_equal_approx(final_rect.position),
+		"FLIP should finish at the Container's final position"
+	)
+	_expect(first_visual.scale.is_equal_approx(Vector2.ONE), "FLIP should restore the visual wrapper's scale")
+	_expect(flip.is_finished(), "The FLIP handle should report finished after its child tweens complete")
+
+	container.move_child(first_slot, 0)
+	container.queue_sort()
+	await wait_process_frames(1)
+	var immediate_options := AnimeLayoutOptions.new()
+	immediate_options.duration = 0.0
+	var immediate_flip = ANIME_SCRIPT.flip(
+		[
+			AnimeLayoutItem.new(first_slot, first_visual),
+			AnimeLayoutItem.new(second_slot, second_visual),
+		],
+		immediate_options
+	)
+	container.move_child(second_slot, 0)
+	container.queue_sort()
+	await wait_process_frames(1)
+	var completion_state := {"count": 0}
+	immediate_flip.completed.connect(func(_layout: AnimeLayoutRuntime) -> void: completion_state["count"] += 1)
+	immediate_flip.play()
+	_expect(completion_state["count"] == 1, "Zero-duration FLIP should complete once after starting all item tweens")
+	_expect(first_visual.scale.is_equal_approx(Vector2.ONE), "Zero-duration FLIP should restore every visual scale")
+	_expect(second_visual.scale.is_equal_approx(Vector2.ONE), "Zero-duration FLIP should finish all item wrappers")
+
+
 func _expect(condition: bool, message: String) -> void:
 	assert_true(condition, message)

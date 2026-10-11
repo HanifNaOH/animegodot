@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://dttp4jfvk6ll8"]
+
+[ext_resource type="Script" uid="uid://dpn8nbgwkogsq" path="res://examples/periodic_table/periodic_table_element_card.gd" id="1_b8wth"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0p6y"]
+resource_local_to_scene = true
+albedo_color = Color(0.17999999, 0.369, 0.2835, 1)
+roughness = 0.58
+
+[sub_resource type="BoxMesh" id="BoxMesh_46gat"]
+size = Vector3(1.02, 1.16, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aourf"]
+resource_local_to_scene = true
+albedo_color = Color(0.4, 0.82, 0.63, 1)
+roughness = 0.58
+
+[sub_resource type="BoxMesh" id="BoxMesh_wkega"]
+size = Vector3(0.94, 1.08, 0.07)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7lbin"]
+size = Vector3(0.94, 1.08, 0.22)
+
+[node name="ElementCard" type="Node3D" unique_id=937155444]
+script = ExtResource("1_b8wth")
+
+[node name="Frame" type="MeshInstance3D" parent="." unique_id=532313809]
+material_override = SubResource("StandardMaterial3D_o0p6y")
+mesh = SubResource("BoxMesh_46gat")
+
+[node name="Face" type="MeshInstance3D" parent="." unique_id=1511473320]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.055)
+material_override = SubResource("StandardMaterial3D_aourf")
+mesh = SubResource("BoxMesh_wkega")
+
+[node name="AtomicNumber" type="Label3D" parent="." unique_id=1770320976]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0.105)
+pixel_size = 0.0055
+modulate = Color(0.9, 0.96, 0.92, 1)
+text = "1"
+font_size = 15
+
+[node name="Symbol" type="Label3D" parent="." unique_id=728835037]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.108)
+pixel_size = 0.008
+modulate = Color(0.97, 0.99, 0.97, 1)
+text = "H"
+font_size = 52
+
+[node name="ElementName" type="Label3D" parent="." unique_id=154782054]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.39, 0.108)
+pixel_size = 0.0055
+modulate = Color(0.82, 0.89, 0.85, 1)
+text = "Hydrogen"
+font_size = 18
+
+[node name="Details" type="Label3D" parent="." unique_id=1235794253]
+transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, -0.27, -0.32, 0.11)
+pixel_size = 0.0068
+modulate = Color(0.1, 0.23, 0.18, 1)
+text = "MASS  1.008 u
+DENSITY  0.08988 g/cm3
+MELTS  -259.16 C
+BOILS  -252.88 C"
+font_size = 10
+outline_size = 0
+horizontal_alignment = 0
+vertical_alignment = 0
+autowrap_mode = 3
+width = 140.0
+
+[node name="Picker" type="Area3D" parent="." unique_id=554736144]
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Picker" unique_id=349105199]
+shape = SubResource("BoxShape3D_7lbin")

@@ -10,6 +10,7 @@ enum Builtin {
 	GLOBAL_POSITION,
 	ROTATION,
 	GLOBAL_ROTATION,
+	SIZE,
 }
 
 var builtin_id: int = Builtin.CUSTOM
@@ -28,7 +29,7 @@ static func builtin(identity: int) -> AnimePropertyKey:
 
 
 func is_valid() -> bool:
-	return builtin_id >= Builtin.CUSTOM and builtin_id <= Builtin.GLOBAL_ROTATION
+	return builtin_id >= Builtin.CUSTOM and builtin_id <= Builtin.SIZE
 
 
 func same_as(other: AnimePropertyKey) -> bool:
@@ -48,4 +49,5 @@ func display_name() -> StringName:
 		Builtin.GLOBAL_POSITION: return &"global_position"
 		Builtin.ROTATION: return &"rotation"
 		Builtin.GLOBAL_ROTATION: return &"global_rotation"
+		Builtin.SIZE: return &"size"
 		_: return &"custom"

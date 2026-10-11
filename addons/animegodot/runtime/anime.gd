@@ -7,6 +7,7 @@ const TIMELINE_RUNTIME_SCRIPT = preload("res://addons/animegodot/runtime/anime_t
 const INTERPOLATION_SCRIPT = preload("res://addons/animegodot/runtime/anime_interpolation.gd")
 const ANIMATION_EXPORTER_SCRIPT = preload("res://addons/animegodot/runtime/anime_animation_exporter.gd")
 const STAGGER_OPTIONS_SCRIPT = preload("res://addons/animegodot/runtime/anime_stagger_options.gd")
+const LAYOUT_RUNTIME_SCRIPT = preload("res://addons/animegodot/runtime/anime_layout_runtime.gd")
 
 const OVERWRITE_NONE := AnimeOverwrite.NONE
 const OVERWRITE_AUTO := AnimeOverwrite.AUTO
@@ -132,6 +133,15 @@ static func add_tween_animation(player: AnimationPlayer, name: StringName, tween
 
 static func timeline(owner: Node = null, options: AnimeOptions = null) -> AnimeTimelineRuntime:
 	return TIMELINE_RUNTIME_SCRIPT.new(owner, options)
+
+
+static func flip(items: Array[AnimeLayoutItem], options: AnimeLayoutOptions = null) -> AnimeLayoutRuntime:
+	return LAYOUT_RUNTIME_SCRIPT.new(items, options)
+
+
+static func create_layout(root: Control, options: AnimeLayoutOptions = null) -> AnimeLayoutRuntime:
+	var layout_script: Script = LAYOUT_RUNTIME_SCRIPT
+	return layout_script.new(root, options) as AnimeLayoutRuntime
 
 
 static func _context_for(target: Object) -> AnimeContext:

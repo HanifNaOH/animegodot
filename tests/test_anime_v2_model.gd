@@ -5,6 +5,7 @@ const CONTROL_SCRIPT = preload("res://addons/animegodot/runtime/anime_control.gd
 const EASE_SCRIPT = preload("res://addons/animegodot/runtime/anime_ease.gd")
 const LABEL_SCRIPT = preload("res://addons/animegodot/runtime/anime_label.gd")
 const NODE_2D_SCRIPT = preload("res://addons/animegodot/runtime/anime_node_2d.gd")
+const NODE_3D_SCRIPT = preload("res://addons/animegodot/runtime/anime_node_3d.gd")
 const OPTIONS_SCRIPT = preload("res://addons/animegodot/runtime/anime_options.gd")
 const POSITION_SCRIPT = preload("res://addons/animegodot/runtime/anime_position.gd")
 const PROPERTY_ACCESSOR_SCRIPT = preload("res://addons/animegodot/runtime/anime_property_accessor.gd")
@@ -133,10 +134,12 @@ func test_common_control_accessors_have_stable_property_identity() -> void:
 	var target := Control.new()
 	var tween_spec = TWEEN_SPEC_SCRIPT.new(target)
 	var size_track = CONTROL_SCRIPT.custom_minimum_size_to(Vector2(120.0, 30.0))
+	var visual_size_track = CONTROL_SCRIPT.size_to(Vector2(120.0, 30.0))
 	var scale_track = CONTROL_SCRIPT.scale_to(Vector2(1.1, 1.1))
 	var modulate_track = CANVAS_ITEM_SCRIPT.modulate_to(Color.WHITE)
 	var alpha_track = CANVAS_ITEM_SCRIPT.alpha_to(0.5)
 	_expect(tween_spec.add_track(size_track), "A custom minimum-size accessor should attach")
+	_expect(tween_spec.add_track(visual_size_track), "A visual-size accessor should attach independently")
 	_expect(tween_spec.add_track(scale_track), "A scale accessor should attach independently")
 	_expect(tween_spec.add_track(modulate_track), "A full-modulate accessor should attach")
 	_expect(
@@ -146,6 +149,8 @@ func test_common_control_accessors_have_stable_property_identity() -> void:
 	_expect(not tween_spec.add_track(alpha_track), "A tween spec should reject alpha overlapping a full-modulate track")
 	_expect(size_track.apply(Vector2(120.0, 30.0)), "The custom minimum-size accessor should write its typed value")
 	_expect(target.custom_minimum_size == Vector2(120.0, 30.0), "The custom minimum size should be updated")
+	_expect(visual_size_track.apply(Vector2(120.0, 30.0)), "The visual-size accessor should write its typed value")
+	_expect(target.size == Vector2(120.0, 30.0), "The Control size should be updated")
 	target.free()
 
 
@@ -172,6 +177,43 @@ func test_node2d_accessors_are_typed_and_share_rotation_identity() -> void:
 	_expect(
 		not NODE_2D_SCRIPT.position_to(Vector2.ONE).attach_to(incompatible_control),
 		"Node2D accessors should reject Controls"
+	)
+	incompatible_control.free()
+	target.free()
+
+
+func test_node3d_accessors_are_typed_and_share_property_identity() -> void:
+	var target := Node3D.new()
+	var position_track = NODE_3D_SCRIPT.position_to(Vector3(2.0, 3.0, 4.0))
+	var global_position_track = NODE_3D_SCRIPT.global_position_to(Vector3(5.0, 6.0, 7.0))
+	var rotation_track = NODE_3D_SCRIPT.rotation_to(Vector3(0.1, 0.2, 0.3))
+	var scale_track = NODE_3D_SCRIPT.scale_to(Vector3.ONE * 1.2)
+	_expect(position_track.attach_to(target), "Node3D position should accept a Node3D and Vector3")
+	_expect(global_position_track.attach_to(target), "Node3D global position should accept a Node3D and Vector3")
+	_expect(rotation_track.attach_to(target), "Node3D rotation should accept a Node3D and Vector3")
+	_expect(scale_track.attach_to(target), "Node3D scale should accept a Node3D and Vector3")
+	_expect(position_track.apply(Vector3(2.0, 3.0, 4.0)), "Node3D position should apply typed values")
+	_expect(rotation_track.apply(Vector3(0.1, 0.2, 0.3)), "Node3D rotation should apply typed values")
+	_expect(scale_track.apply(Vector3.ONE * 1.2), "Node3D scale should apply typed values")
+	_expect(target.position == Vector3(2.0, 3.0, 4.0), "Node3D position should receive its value")
+	_expect(target.rotation == Vector3(0.1, 0.2, 0.3), "Node3D rotation should receive its value")
+	_expect(target.scale == Vector3.ONE * 1.2, "Node3D scale should receive its value")
+	_expect(
+		position_track.accessor.get_native_path(target) == NodePath("position"),
+		"Node3D position should provide its native path internally"
+	)
+	_expect(
+		position_track.accessor.has_same_identity(NODE_3D_SCRIPT.position_to(Vector3.ZERO).accessor),
+		"Node3D position accessors should share identity"
+	)
+	_expect(
+		rotation_track.accessor.has_same_identity(NODE_3D_SCRIPT.rotation_to(Vector3.ZERO).accessor),
+		"Node3D rotation accessors should share identity"
+	)
+	var incompatible_control := Control.new()
+	_expect(
+		not NODE_3D_SCRIPT.position_to(Vector3.ONE).attach_to(incompatible_control),
+		"Node3D accessors should reject Controls"
 	)
 	incompatible_control.free()
 	target.free()

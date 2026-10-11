@@ -108,6 +108,17 @@ timeline.invoke(_intro_finished, AnimePosition.after_previous())
 timeline.play()
 ```
 
+For FLIP-style layout transitions, create a controller for the Container and wrap the mutation in `update()`. By default, each direct-child Control is paired with its direct-child `Visual` wrapper:
+
+```gdscript
+var layout := Anime.create_layout($Cards)
+await layout.update(func(root: Control) -> void:
+    (root as VBoxContainer).move_child(root.get_child(1), 0)
+)
+```
+
+Set `AnimeLayoutOptions.children_group` to filter discovered descendant slots by Godot group, or use `options.visual_path` to select another wrapper path. For fully custom pairings, `Anime.flip(Array[AnimeLayoutItem])` remains available. Visual wrappers should fill their slots and use a zero pivot. Enter/exit and reparent transitions are not included.
+
 Tween options include duration, delay, ease, repeat count/delay, yoyo, direction, overwrite, speed scale, time-scale behavior, process mode, and `Callable` lifecycle hooks. Tween and timeline handles provide playback controls such as pause, resume, reverse, restart, seek, and kill. Timeline entries can be tweens, nested timelines, or callbacks.
 
 `Anime.interpolate()`, `Anime.bezier()`, and `Anime.spring()` remain available as value helpers. Tracks may set a custom interpolation `Callable` in their typed options.

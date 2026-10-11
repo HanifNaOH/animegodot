@@ -50,7 +50,12 @@ All accessor factories validate both target and value types. Current accessors a
 - `AnimeNode2D.rotation_to(float)`
 - `AnimeNode2D.rotation_degrees_to(float)`
 - `AnimeNode2D.scale_to(Vector2)`
+- `AnimeNode3D.position_to(Vector3)`
+- `AnimeNode3D.global_position_to(Vector3)`
+- `AnimeNode3D.rotation_to(Vector3)`
+- `AnimeNode3D.scale_to(Vector3)`
 - `AnimeControl.position_to(Vector2)`
+- `AnimeControl.size_to(Vector2)`
 - `AnimeControl.custom_minimum_size_to(Vector2)`
 - `AnimeControl.scale_to(Vector2)`
 - `AnimeCanvasItem.alpha_to(float)`
@@ -97,6 +102,50 @@ Easing constants live on `AnimeEase`, for example `LINEAR`, `OUT_QUAD`, and `IN_
 - `cursor()` or `null` for the current end
 
 Timeline options use `AnimeOptions`; configure child defaults through `timeline.defaults`. Playback methods include `play`, `pause`, `resume`, `reverse`, `restart`, `seek`, `seek_progress`, `invalidate`, `revert`, and `kill`.
+
+## FLIP Layout Transitions
+
+`Anime.create_layout(root, AnimeLayoutOptions)` creates a reusable root-based layout controller. By default, it discovers each direct-child `Control` under `root` and pairs it with that slot's direct-child `Visual` control. Set `options.children_group` to discover matching descendants in a Godot group instead, and change `options.visual_path` if the visual wrapper has another path.
+
+`await layout.update(func(root: Control): ...)` captures current bounds, runs the layout mutation, waits for Container reflow, and animates existing wrappers to their new positions and sizes. Reuse the same layout object for later updates. The callback receives the root Control. Alternatively, call `record()`, mutate the layout, then call `animate()` after reflow if you need to control those steps yourself.
+
+`AnimeLayoutOptions` supports `duration`, `ease`, `size_ease`, `speed_scale`, `ignore_time_scale`, `process_mode`, `overwrite`, `children_group`, and `visual_path`. `size_ease` defaults to `INHERIT`, so size follows `ease` unless configured independently. Visual wrappers should fill their layout slots and use a zero pivot. The root-based API currently animates items that exist before and after the update; automatic enter/exit and reparent transitions are not included.
+
+For custom item pairings, the lower-level `Anime.flip(Array[AnimeLayoutItem], AnimeLayoutOptions)` API remains available. Each item pairs a layout-managed Control with its direct-child visual wrapper. After changing the layout, call `hold_first_state()` while waiting for Container reflow, then `play()`. The handle emits `completed` when its wrapper tweens finish; `kill()` snaps wrappers to their final transforms.
+
+```gdscript
+var options := AnimeLayoutOptions.new()
+options.duration = 0.35
+options.ease = AnimeEase.OUT_QUAD
+var layout := Anime.create_layout($Grid, options)
+
+await layout.update(func(root: Control) -> void:
+	(root as GridContainer).columns = 1
+)
+```
+
+The explicit-item form is useful when the root contains unrelated Controls or layout slots use different wrapper paths:
+
+```gdscript
+var items: Array[AnimeLayoutItem] = [
+	AnimeLayoutItem.new($Grid/SlotA, $Grid/SlotA/Visual),
+	AnimeLayoutItem.new($Grid/SlotB, $Grid/SlotB/Visual),
+]
+var options := AnimeLayoutOptions.new()
+options.duration = 0.35
+options.ease = AnimeEase.OUT_QUAD
+var flip := Anime.flip(items, options)
+
+$Grid.move_child($Grid/SlotB, 0)
+$Grid.queue_sort()
+flip.hold_first_state()
+await get_tree().process_frame
+flip.hold_first_state()
+flip.play()
+await flip.completed
+```
+
+Both forms animate existing controls that survive a reorder or resize in the same layout. Added/removed controls, reparenting, and cross-canvas transitions are not supported.
 
 ## Interpolation And AnimationPlayer
 
