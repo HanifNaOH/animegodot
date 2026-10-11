@@ -83,6 +83,8 @@ var _remaining_tweens := 0
 var _transitioning := false
 var _orbit_dragging := false
 var _pointer_rotation := Vector2.ZERO
+var _pointer_position := Vector2.ZERO
+var _has_pointer_position := false
 var _zoom := 1.0
 var _selected_index := -1
 var _hovered_index := -1
@@ -107,15 +109,22 @@ func _ready() -> void:
 	_update_layout_status()
 	_update_selection_status()
 	get_viewport().size_changed.connect(_update_camera_fit)
+	get_window().mouse_exited.connect(_on_mouse_exited)
 	_update_camera_fit()
 
 
 func _process(delta: float) -> void:
-	if _stage == null or _orbit_dragging:
+	if _stage == null:
 		return
-	var weight := 1.0 - exp(-9.0 * delta)
-	_stage.rotation.x = lerp_angle(_stage.rotation.x, _pointer_rotation.x, weight)
-	_stage.rotation.y = lerp_angle(_stage.rotation.y, _pointer_rotation.y, weight)
+	if not _orbit_dragging:
+		var weight := 1.0 - exp(-9.0 * delta)
+		_stage.rotation.x = lerp_angle(_stage.rotation.x, _pointer_rotation.x, weight)
+		_stage.rotation.y = lerp_angle(_stage.rotation.y, _pointer_rotation.y, weight)
+	if _has_pointer_position:
+		if get_viewport().get_visible_rect().has_point(_pointer_position):
+			_update_hover(_pointer_position)
+		else:
+			_on_mouse_exited()
 
 
 func _element_details(atomic_number: int) -> String:
@@ -407,7 +416,12 @@ func _camera_fit_distance(layout: StringName) -> float:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		_update_hover(event.position)
+		_pointer_position = event.position
+		_has_pointer_position = get_viewport().get_visible_rect().has_point(_pointer_position)
+		if _has_pointer_position:
+			_update_hover(_pointer_position)
+		else:
+			_clear_hover()
 		if _orbit_dragging:
 			_orbit(event.relative)
 		else:
@@ -420,7 +434,13 @@ func _input(event: InputEvent) -> void:
 
 
 func _update_hover(screen_position: Vector2) -> void:
-	var index := _element_index_at_screen(screen_position)
+	if not get_viewport().get_visible_rect().has_point(screen_position):
+		_clear_hover()
+		return
+	_set_hovered_index(_element_index_at_screen(screen_position))
+
+
+func _set_hovered_index(index: int) -> void:
 	if index == _hovered_index:
 		return
 	if _hovered_index >= 0:
@@ -428,6 +448,15 @@ func _update_hover(screen_position: Vector2) -> void:
 	_hovered_index = index
 	if _hovered_index >= 0:
 		_visual_roots[_hovered_index].scale = Vector3.ONE * 1.2
+
+
+func _clear_hover() -> void:
+	_set_hovered_index(-1)
+
+
+func _on_mouse_exited() -> void:
+	_has_pointer_position = false
+	_clear_hover()
 
 
 func _element_index_at_screen(screen_position: Vector2) -> int:

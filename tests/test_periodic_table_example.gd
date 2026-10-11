@@ -136,6 +136,53 @@ func test_every_element_has_a_picker_and_viewport_click_selects_cards() -> void:
 		await _wait_for_transition(demo)
 
 
+func test_hover_rechecks_stationary_pointer_during_layout_motion_and_clears_outside() -> void:
+	var demo = DEMO_SCENE.instantiate()
+	add_child_autoqfree(demo)
+	await wait_process_frames(2)
+	await wait_physics_frames(2)
+
+	var cards: Array = demo.get("_cards")
+	var visual_roots: Array = demo.get("_visual_roots")
+	var camera := demo.get("_camera") as Camera3D
+	var first_card := cards[0] as Node3D
+	var pointer_position := camera.unproject_position(first_card.global_position)
+	var motion := InputEventMouseMotion.new()
+	motion.position = pointer_position
+	demo.call("_input", motion)
+
+	var first_hovered := int(demo.get("_hovered_index"))
+	_assert(first_hovered >= 0, "Moving the pointer over an element should establish a hover")
+	_assert(bool(demo.get("_has_pointer_position")), "The pointer position should be cached while in the viewport")
+
+	demo.set("_orbit_dragging", true)
+	demo.call("_change_layout", &"sphere")
+	var hover_changed := false
+	for _frame in 90:
+		await wait_process_frames(1)
+		await wait_physics_frames(1)
+		demo.call("_process", 1.0 / 60.0)
+		var expected_hover := int(demo.call("_element_index_at_screen", pointer_position))
+		_assert(
+			int(demo.get("_hovered_index")) == expected_hover,
+			"Hover should match the stationary pointer's ray while cards move"
+		)
+		if expected_hover != first_hovered:
+			hover_changed = true
+			break
+	_assert(hover_changed, "The layout transition should move the original hovered card away from the pointer")
+	_assert(
+		(visual_roots[first_hovered] as Node3D).scale.is_equal_approx(Vector3.ONE),
+		"The original card should return to normal scale after the pointer ray moves away"
+	)
+
+	var outside_motion := InputEventMouseMotion.new()
+	outside_motion.position = get_viewport().get_visible_rect().size + Vector2.ONE
+	demo.call("_input", outside_motion)
+	_assert(not bool(demo.get("_has_pointer_position")), "Leaving the viewport should clear the cached pointer")
+	_assert(int(demo.get("_hovered_index")) == -1, "Leaving the viewport should clear the hovered card")
+
+
 func test_selecting_element_expands_details_and_escape_collapses() -> void:
 	var demo = DEMO_SCENE.instantiate()
 	add_child_autoqfree(demo)
