@@ -29,23 +29,23 @@ func _ready() -> void:
 
 
 func _sync_text() -> void:
-	var number_label := get_node_or_null("AtomicNumber") as Label3D
+	var number_label := get_node_or_null("Visuals/AtomicNumber") as Label3D
 	if number_label != null:
 		number_label.text = str(atomic_number)
-	var symbol_label := get_node_or_null("Symbol") as Label3D
+	var symbol_label := get_node_or_null("Visuals/Symbol") as Label3D
 	if symbol_label != null:
 		symbol_label.text = symbol
-	var name_label := get_node_or_null("ElementName") as Label3D
+	var name_label := get_node_or_null("Visuals/ElementName") as Label3D
 	if name_label != null:
 		name_label.text = element_name
-	var details_label := get_node_or_null("Details") as Label3D
+	var details_label := get_node_or_null("Visuals/Details") as Label3D
 	if details_label != null:
 		details_label.text = details
 
 
 func _sync_materials() -> void:
-	_set_mesh_color("Face", category_color)
-	_set_mesh_color("Frame", category_color.darkened(0.55))
+	_set_mesh_color("Visuals/Face", category_color)
+	_set_mesh_color("Visuals/Frame", category_color.darkened(0.55))
 
 
 func _set_mesh_color(node_path: NodePath, color: Color) -> void:

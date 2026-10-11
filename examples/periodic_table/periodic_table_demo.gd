@@ -69,6 +69,7 @@ const HELIX_RADIUS := 4.35
 @onready var _stage: Node3D = %ElementStage
 @onready var _camera: Camera3D = %LayoutCamera
 var _cards: Array[Node3D] = []
+var _visual_roots: Array[Node3D] = []
 var _number_labels: Array[Label3D] = []
 var _symbol_labels: Array[Label3D] = []
 var _name_labels: Array[Label3D] = []
@@ -84,15 +85,17 @@ var _orbit_dragging := false
 var _pointer_rotation := Vector2.ZERO
 var _zoom := 1.0
 var _selected_index := -1
+var _hovered_index := -1
 
 
 func _ready() -> void:
 	for card in _stage.get_children():
 		_cards.append(card as Node3D)
-		_number_labels.append(card.get_node("AtomicNumber") as Label3D)
-		_symbol_labels.append(card.get_node("Symbol") as Label3D)
-		_name_labels.append(card.get_node("ElementName") as Label3D)
-		_detail_labels.append(card.get_node("Details") as Label3D)
+		_visual_roots.append(card.get_node("Visuals") as Node3D)
+		_number_labels.append(card.get_node("Visuals/AtomicNumber") as Label3D)
+		_symbol_labels.append(card.get_node("Visuals/Symbol") as Label3D)
+		_name_labels.append(card.get_node("Visuals/ElementName") as Label3D)
+		_detail_labels.append(card.get_node("Visuals/Details") as Label3D)
 	_mode_buttons = {
 		&"table": %TableButton,
 		&"sphere": %SphereButton,
@@ -404,6 +407,7 @@ func _camera_fit_distance(layout: StringName) -> float:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
+		_update_hover(event.position)
 		if _orbit_dragging:
 			_orbit(event.relative)
 		else:
@@ -415,7 +419,18 @@ func _input(event: InputEvent) -> void:
 		_orbit(event.relative)
 
 
-func _pick_element(screen_position: Vector2) -> bool:
+func _update_hover(screen_position: Vector2) -> void:
+	var index := _element_index_at_screen(screen_position)
+	if index == _hovered_index:
+		return
+	if _hovered_index >= 0:
+		_visual_roots[_hovered_index].scale = Vector3.ONE
+	_hovered_index = index
+	if _hovered_index >= 0:
+		_visual_roots[_hovered_index].scale = Vector3.ONE * 1.2
+
+
+func _element_index_at_screen(screen_position: Vector2) -> int:
 	var ray_origin := _camera.project_ray_origin(screen_position)
 	var ray_end := ray_origin + _camera.project_ray_normal(screen_position) * 100.0
 	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
@@ -423,12 +438,15 @@ func _pick_element(screen_position: Vector2) -> bool:
 	query.collision_mask = 1
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
-		return false
+		return -1
 	var picker := hit.get("collider") as Area3D
 	if picker == null:
-		return false
-	var card := picker.get_parent() as Node3D
-	var index := _cards.find(card)
+		return -1
+	return _cards.find(picker.get_parent())
+
+
+func _pick_element(screen_position: Vector2) -> bool:
+	var index := _element_index_at_screen(screen_position)
 	if index < 0:
 		return false
 	_select_element(index)

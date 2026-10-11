@@ -25,6 +25,7 @@ class Snapshot:
 var options: AnimeLayoutOptions = AnimeLayoutOptions.new()
 var active := false
 var _root: Control
+var _run_options: AnimeLayoutOptions
 var _discovers_children := false
 var _snapshots: Array[Snapshot] = []
 var _active_tweens: Array[AnimeTweenRuntime] = []
@@ -64,11 +65,14 @@ func _record() -> void:
 	_snapshots = _capture_items(_discover_items())
 
 
-func animate() -> AnimeLayoutRuntime:
-	return play()
+func animate(transition_options: AnimeLayoutOptions = null) -> AnimeLayoutRuntime:
+	return play(transition_options)
 
 
-func update(change: Callable) -> AnimeLayoutRuntime:
+func update(
+	change: Callable,
+	transition_options: AnimeLayoutOptions = null
+) -> AnimeLayoutRuntime:
 	if not _discovers_children or not is_instance_valid(_root) or not _root.is_inside_tree():
 		push_warning("AnimeGodot update() requires an in-tree root created with Anime.create_layout().")
 		return self
@@ -78,6 +82,10 @@ func update(change: Callable) -> AnimeLayoutRuntime:
 	if _update_in_progress or active or not _active_tweens.is_empty():
 		push_warning("AnimeGodot cannot update a layout while its previous transition is active.")
 		return self
+	var run_options := _resolve_options(transition_options)
+	if not run_options.is_valid():
+		push_warning("AnimeGodot rejected invalid per-update layout options.")
+		return self
 	_update_in_progress = true
 	_update_generation += 1
 	var update_generation := _update_generation
@@ -85,15 +93,24 @@ func update(change: Callable) -> AnimeLayoutRuntime:
 	change.call(_root)
 	if update_generation != _update_generation:
 		return self
+	hold_first_state()
+	call_deferred("hold_first_state")
 	await _wait_for_layout_settle()
 	if update_generation != _update_generation:
 		return self
-	animate()
+	animate(run_options)
 	if not is_finished():
 		await _update_finished
 	if update_generation == _update_generation:
 		_update_in_progress = false
 	return self
+
+
+func _resolve_options(transition_options: AnimeLayoutOptions) -> AnimeLayoutOptions:
+	var resolved := options.copy() if transition_options == null else transition_options.copy()
+	resolved.children_group = options.children_group
+	resolved.visual_path = options.visual_path
+	return resolved
 
 
 func _capture_items(items: Array) -> Array[Snapshot]:
@@ -151,7 +168,7 @@ func _wait_for_layout_settle() -> void:
 		else:
 			stable_frames = 0
 		previous_rects = current_rects
-		hold_first_state()
+		call_deferred("hold_first_state")
 		if stable_frames >= 2:
 			return
 
@@ -172,32 +189,35 @@ func _reset_run_state() -> void:
 	_active_tweens.clear()
 
 
-func play() -> AnimeLayoutRuntime:
+func play(transition_options: AnimeLayoutOptions = null) -> AnimeLayoutRuntime:
 	if _started or _completed or _killed:
 		return self
+	_run_options = _resolve_options(transition_options)
 	_started = true
-	if not options.is_valid():
+	if not _run_options.is_valid():
 		push_warning("AnimeGodot FLIP rejected invalid layout options.")
 		_killed = true
 		killed.emit(self)
 		return self
 	active = true
 	started.emit(self)
-	for snapshot in _snapshots:
+	for index in _snapshots.size():
+		var snapshot: Snapshot = _snapshots[index]
 		if not _prepare_snapshot(snapshot):
 			continue
 		var item := snapshot.item
 		var visual := item.visual_control
 		var item_tween: AnimeTweenRuntime = TWEEN_RUNTIME_SCRIPT.new(visual)
-		item_tween.options.duration = options.duration
-		item_tween.options.ease = options.ease
-		item_tween.options.speed_scale = options.speed_scale
-		item_tween.options.ignore_time_scale = options.ignore_time_scale
-		item_tween.options.process_mode = options.process_mode
-		item_tween.options.overwrite = options.overwrite
+		item_tween.options.duration = _run_options.duration
+		item_tween.options.delay = _run_options.delay + _run_options.stagger.delay_for(index, _snapshots.size())
+		item_tween.options.ease = _run_options.ease
+		item_tween.options.speed_scale = _run_options.speed_scale
+		item_tween.options.ignore_time_scale = _run_options.ignore_time_scale
+		item_tween.options.process_mode = _run_options.process_mode
+		item_tween.options.overwrite = _run_options.overwrite
 		var position_track := CONTROL_SCRIPT.global_position_to(snapshot.final_global_position)
 		var size_track := CONTROL_SCRIPT.size_to(snapshot.final_size)
-		size_track.options.ease = options.size_ease
+		size_track.options.ease = _run_options.size_ease
 		if (
 			not item_tween.add_track(position_track)
 			or not item_tween.add_track(size_track)

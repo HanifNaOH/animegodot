@@ -106,11 +106,11 @@ Timeline options use `AnimeOptions`; configure child defaults through `timeline.
 
 ## FLIP Layout Transitions
 
-`Anime.create_layout(root, AnimeLayoutOptions)` creates a reusable root-based layout controller. By default, it discovers each direct-child `Control` under `root` and pairs it with that slot's direct-child `Visual` control. Set `options.children_group` to discover matching descendants in a Godot group instead, and change `options.visual_path` if the visual wrapper has another path.
+`Anime.create_layout(root, AnimeLayoutOptions)` creates a reusable root-based layout controller. By default, it discovers each direct-child `Control` under `root` and pairs it with that slot's direct-child `Visual` control. Set `children_group` to discover matching descendants in a Godot group instead, or change `visual_path` if the visual wrapper has another path. These discovery settings belong to the controller.
 
-`await layout.update(func(root: Control): ...)` captures current bounds, runs the layout mutation, waits for Container reflow, and animates existing wrappers to their new positions and sizes. Reuse the same layout object for later updates. The callback receives the root Control. Alternatively, call `record()`, mutate the layout, then call `animate()` after reflow if you need to control those steps yourself.
+`await layout.update(func(root: Control): ..., transition_options)` captures current bounds, runs the layout mutation, waits for Container reflow, and animates existing wrappers to their new positions and sizes. Reuse the same layout object for later updates and pass different transition options to each call. Omitting `transition_options` uses the controller's default animation settings. The callback receives the root Control. Alternatively, call `record()`, mutate the layout, then call `animate(transition_options)` after reflow if you need to control those steps yourself.
 
-`AnimeLayoutOptions` supports `duration`, `ease`, `size_ease`, `speed_scale`, `ignore_time_scale`, `process_mode`, `overwrite`, `children_group`, and `visual_path`. `size_ease` defaults to `INHERIT`, so size follows `ease` unless configured independently. Visual wrappers should fill their layout slots and use a zero pivot. The root-based API currently animates items that exist before and after the update; automatic enter/exit and reparent transitions are not included.
+`AnimeLayoutOptions` supports `duration`, `delay`, `ease`, `size_ease`, `speed_scale`, `ignore_time_scale`, `process_mode`, `overwrite`, `stagger`, `children_group`, and `visual_path`. `size_ease` defaults to `INHERIT`, so size follows `ease` unless configured independently. `stagger` uses `AnimeStaggerOptions`; its delays are added to `delay` for each item. Visual wrappers should fill their layout slots and use a zero pivot. The root-based API currently animates items that exist before and after the update; automatic enter/exit and reparent transitions are not included.
 
 For custom item pairings, the lower-level `Anime.flip(Array[AnimeLayoutItem], AnimeLayoutOptions)` API remains available. Each item pairs a layout-managed Control with its direct-child visual wrapper. After changing the layout, call `hold_first_state()` while waiting for Container reflow, then `play()`. The handle emits `completed` when its wrapper tweens finish; `kill()` snaps wrappers to their final transforms.
 
@@ -118,10 +118,18 @@ For custom item pairings, the lower-level `Anime.flip(Array[AnimeLayoutItem], An
 var options := AnimeLayoutOptions.new()
 options.duration = 0.35
 options.ease = AnimeEase.OUT_QUAD
+options.stagger.each = 0.02
 var layout := Anime.create_layout($Grid, options)
 
-await layout.update(func(root: Control) -> void:
-	(root as GridContainer).columns = 1
+var transition := AnimeLayoutOptions.new()
+transition.duration = 0.7
+transition.ease = AnimeEase.OUT_CUBIC
+transition.stagger.each = 0.03
+
+await layout.update(
+	func(root: Control) -> void:
+		(root as GridContainer).columns = 1,
+	transition
 )
 ```
 

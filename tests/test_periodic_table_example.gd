@@ -25,8 +25,8 @@ func test_scene_authors_the_elements_and_interface() -> void:
 		var card := stage.get_child(index) as Node3D
 		_assert(card.scene_file_path == hydrogen.scene_file_path, "Every card should share the reusable model scene")
 		_assert(int(card.get("atomic_number")) == index + 1, "Every card should retain its atomic-number override")
-	_assert(hydrogen.get_node_or_null("Face") is MeshInstance3D, "Card geometry should be editable scene nodes")
-	_assert(hydrogen.get_node_or_null("Symbol") is Label3D, "Element labels should be editable scene nodes")
+	_assert(hydrogen.get_node_or_null("Visuals/Face") is MeshInstance3D, "Card geometry should be editable scene nodes")
+	_assert(hydrogen.get_node_or_null("Visuals/Symbol") is Label3D, "Element labels should be editable scene nodes")
 	_assert(hydrogen.get_node_or_null("Picker/CollisionShape") is CollisionShape3D, "Card picking should be authored in the scene")
 	demo.free()
 
