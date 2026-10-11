@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[node name="Details" type="Label3D" unique_id=1235794253]
+transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, -0.27, -0.32, 0.11)
+pixel_size = 0.0068
+modulate = Color(0.1, 0.23, 0.18, 1)
+text = "MASS  1.008 u
+DENSITY  0.08988 g/cm3
+MELTS  -259.16 C
+BOILS  -252.88 C"
+font_size = 10
+outline_size = 0
+horizontal_alignment = 0
+vertical_alignment = 0
+autowrap_mode = 3
+width = 140.0

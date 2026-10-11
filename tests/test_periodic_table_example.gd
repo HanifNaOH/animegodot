@@ -27,6 +27,12 @@ func test_scene_authors_the_elements_and_interface() -> void:
 		_assert(int(card.get("atomic_number")) == index + 1, "Every card should retain its atomic-number override")
 	_assert(hydrogen.get_node_or_null("Visuals/Face") is MeshInstance3D, "Card geometry should be editable scene nodes")
 	_assert(hydrogen.get_node_or_null("Visuals/Symbol") is Label3D, "Element labels should be editable scene nodes")
+	var details := hydrogen.get_node_or_null("Visuals/Details") as Label3D
+	_assert(details != null, "Each card should include its expanded details label")
+	_assert(
+		details.scene_file_path == "res://examples/periodic_table/periodic_table_element_details.tscn",
+		"Expanded details should be authored as a reusable scene"
+	)
 	_assert(hydrogen.get_node_or_null("Picker/CollisionShape") is CollisionShape3D, "Card picking should be authored in the scene")
 	demo.free()
 

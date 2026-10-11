@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dttp4jfvk6ll8"]
 
 [ext_resource type="Script" uid="uid://dpn8nbgwkogsq" path="res://examples/periodic_table/periodic_table_element_card.gd" id="1_b8wth"]
+[ext_resource type="PackedScene" path="res://examples/periodic_table/periodic_table_element_details.tscn" id="2_details"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0p6y"]
 resource_local_to_scene = true
@@ -56,20 +57,7 @@ modulate = Color(0.82, 0.89, 0.85, 1)
 text = "Hydrogen"
 font_size = 18
 
-[node name="Details" type="Label3D" parent="Visuals" unique_id=1235794253]
-transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, -0.27, -0.32, 0.11)
-pixel_size = 0.0068
-modulate = Color(0.1, 0.23, 0.18, 1)
-text = "MASS  1.008 u
-DENSITY  0.08988 g/cm3
-MELTS  -259.16 C
-BOILS  -252.88 C"
-font_size = 10
-outline_size = 0
-horizontal_alignment = 0
-vertical_alignment = 0
-autowrap_mode = 3
-width = 140.0
+[node name="Details" parent="Visuals" instance=ExtResource("2_details")]
 
 [node name="Picker" type="Area3D" parent="." unique_id=554736144]
 collision_mask = 0
