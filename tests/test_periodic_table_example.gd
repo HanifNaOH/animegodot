@@ -124,7 +124,7 @@ func test_every_element_has_a_picker_and_viewport_click_selects_cards() -> void:
 		click.button_index = MOUSE_BUTTON_LEFT
 		click.pressed = true
 		click.position = screen_position
-		demo.call("_input", click)
+		demo.call("_unhandled_input", click)
 		await wait_physics_frames(2)
 		await wait_process_frames(1)
 		_assert(

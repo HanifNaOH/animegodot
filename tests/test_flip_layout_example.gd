@@ -42,6 +42,29 @@ func test_create_layout_discovers_children_and_updates_repeatedly() -> void:
 		)
 
 
+func test_overlapping_layout_updates_are_ignored_until_the_first_finishes() -> void:
+	var demo = DEMO_SCENE.instantiate()
+	add_child_autoqfree(demo)
+	await wait_process_frames(2)
+
+	var grid := demo.get("_grid") as GridContainer
+	var layout := Anime.create_layout(grid) as AnimeLayoutRuntime
+	var update_counts := {"first": 0, "second": 0}
+	layout.update(func(root: Control) -> void:
+		update_counts["first"] += 1
+		(root as GridContainer).columns = 1
+	)
+	layout.update(func(root: Control) -> void:
+		update_counts["second"] += 1
+		(root as GridContainer).columns = 2
+	)
+	_assert(update_counts["first"] == 1, "The first update should run")
+	_assert(update_counts["second"] == 0, "An overlapping update should be rejected")
+	_assert(grid.columns == 1, "A rejected update should not overwrite the accepted mutation")
+
+	await layout.completed
+
+
 func test_spammed_reorder_keeps_one_transition_consistent() -> void:
 	var demo = DEMO_SCENE.instantiate()
 	add_child_autoqfree(demo)
@@ -120,8 +143,8 @@ func test_flip_captures_the_visible_wrapper_as_its_source_rect() -> void:
 	add_child_autoqfree(demo)
 	await wait_process_frames(2)
 
-	var slot := (demo.get("_slots") as Array)[0] as Control
-	var visual := (demo.get("_visuals") as Array)[0] as Control
+	var slot := (demo.get("_slots") as Array).back() as Control
+	var visual := (demo.get("_visuals") as Array).back() as Control
 	visual.global_position += Vector2(0.0, 24.0)
 	visual.size -= Vector2(40.0, 8.0)
 	var source_rect := visual.get_global_rect()
@@ -130,6 +153,10 @@ func test_flip_captures_the_visible_wrapper_as_its_source_rect() -> void:
 	var flip := AnimeLayoutRuntime.new([AnimeLayoutItem.new(slot, visual)], options)
 
 	flip.play()
+	_assert(
+		visual.z_index <= AnimeLayoutRuntime.ELEVATED_Z_INDEX,
+		"Filtered FLIP items should remain within Godot's maximum z-index"
+	)
 	_assert(
 		visual.global_position.is_equal_approx(source_rect.position),
 		"FLIP should begin at the visible wrapper position instead of snapping to its layout slot"
@@ -143,6 +170,30 @@ func test_flip_captures_the_visible_wrapper_as_its_source_rect() -> void:
 	_assert(
 		visual.global_position.is_equal_approx(slot.get_global_rect().position),
 		"FLIP should finish at the layout slot position"
+	)
+
+
+func test_killing_before_play_restores_the_final_layout_rect() -> void:
+	var demo = DEMO_SCENE.instantiate()
+	add_child_autoqfree(demo)
+	await wait_process_frames(2)
+
+	var grid := demo.get("_grid") as GridContainer
+	var slot := (demo.get("_slots") as Array).back() as Control
+	var visual := (demo.get("_visuals") as Array).back() as Control
+	var flip := AnimeLayoutRuntime.new([AnimeLayoutItem.new(slot, visual)])
+	grid.columns = 1
+	grid.queue_sort()
+	await wait_process_frames(2)
+	var final_rect := slot.get_global_rect()
+
+	flip.hold_first_state()
+	flip.kill()
+
+	_assert(
+		visual.global_position.is_equal_approx(final_rect.position)
+			and visual.size.is_equal_approx(final_rect.size),
+		"Cancellation before play should snap the wrapper to its final layout rectangle"
 	)
 
 

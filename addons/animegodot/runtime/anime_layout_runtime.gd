@@ -8,6 +8,7 @@ const ELEVATED_Z_INDEX := 4096
 signal started(layout: AnimeLayoutRuntime)
 signal completed(layout: AnimeLayoutRuntime)
 signal killed(layout: AnimeLayoutRuntime)
+signal _update_finished
 
 class Snapshot:
 	var item: AnimeLayoutItem
@@ -30,6 +31,8 @@ var _active_tweens: Array[AnimeTweenRuntime] = []
 var _started := false
 var _completed := false
 var _killed := false
+var _update_in_progress := false
+var _update_generation := 0
 
 
 func _init(source: Variant, layout_options: AnimeLayoutOptions = null) -> void:
@@ -49,12 +52,16 @@ func record() -> AnimeLayoutRuntime:
 	if not _discovers_children or not is_instance_valid(_root):
 		push_warning("AnimeGodot record() requires a layout created with Anime.create_layout().")
 		return self
-	if active or not _active_tweens.is_empty():
+	if _update_in_progress or active or not _active_tweens.is_empty():
 		push_warning("AnimeGodot cannot record a layout while its previous transition is active.")
 		return self
+	_record()
+	return self
+
+
+func _record() -> void:
 	_reset_run_state()
 	_snapshots = _capture_items(_discover_items())
-	return self
 
 
 func animate() -> AnimeLayoutRuntime:
@@ -68,15 +75,24 @@ func update(change: Callable) -> AnimeLayoutRuntime:
 	if not change.is_valid():
 		push_warning("AnimeGodot update() requires a valid layout-change Callable.")
 		return self
-	if active or not _active_tweens.is_empty():
+	if _update_in_progress or active or not _active_tweens.is_empty():
 		push_warning("AnimeGodot cannot update a layout while its previous transition is active.")
 		return self
-	record()
+	_update_in_progress = true
+	_update_generation += 1
+	var update_generation := _update_generation
+	_record()
 	change.call(_root)
+	if update_generation != _update_generation:
+		return self
 	await _wait_for_layout_settle()
+	if update_generation != _update_generation:
+		return self
 	animate()
 	if not is_finished():
-		await completed
+		await _update_finished
+	if update_generation == _update_generation:
+		_update_in_progress = false
 	return self
 
 
@@ -204,6 +220,9 @@ func kill() -> void:
 	if _completed or _killed:
 		return
 	_killed = true
+	if _update_in_progress:
+		_update_generation += 1
+		_update_in_progress = false
 	active = false
 	for item_tween in _active_tweens.duplicate():
 		if is_instance_valid(item_tween):
@@ -212,6 +231,7 @@ func kill() -> void:
 		_restore_final(snapshot)
 	_active_tweens.clear()
 	killed.emit(self)
+	_update_finished.emit()
 
 
 func is_finished() -> bool:
@@ -282,12 +302,26 @@ func _remove_item_tween(item_tween: AnimeTweenRuntime) -> void:
 func _raise_visual(snapshot: Snapshot) -> void:
 	var visual := snapshot.item.visual_control
 	visual.z_as_relative = false
-	visual.z_index = ELEVATED_Z_INDEX - _snapshots.size() + snapshot.original_order + 1
+	var snapshot_index := _snapshots.find(snapshot)
+	var rank := 0
+	for candidate_index in _snapshots.size():
+		var candidate: Snapshot = _snapshots[candidate_index]
+		if candidate.original_order < snapshot.original_order or (
+			candidate.original_order == snapshot.original_order and candidate_index < snapshot_index
+		):
+			rank += 1
+	visual.z_index = ELEVATED_Z_INDEX - _snapshots.size() + rank + 1
 
 
 func _restore_final(snapshot: Snapshot) -> void:
-	if snapshot == null or not snapshot.has_final or not is_instance_valid(snapshot.item):
+	if snapshot == null or not is_instance_valid(snapshot.item) or not snapshot.item.is_valid():
 		return
+	if not snapshot.has_final:
+		var layout_rect := snapshot.item.layout_control.get_global_rect()
+		snapshot.final_global_position = layout_rect.position
+		snapshot.final_size = layout_rect.size
+		snapshot.final_scale = snapshot.original_scale
+		snapshot.has_final = true
 	if not is_instance_valid(snapshot.item.visual_control):
 		return
 	var visual := snapshot.item.visual_control
@@ -305,4 +339,6 @@ func _finish() -> void:
 		_restore_final(snapshot)
 	active = false
 	_completed = true
+	_update_in_progress = false
 	completed.emit(self)
+	_update_finished.emit()

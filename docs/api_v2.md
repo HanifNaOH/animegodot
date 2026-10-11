@@ -55,6 +55,7 @@ All accessor factories validate both target and value types. Current accessors a
 - `AnimeNode3D.rotation_to(Vector3)`
 - `AnimeNode3D.scale_to(Vector3)`
 - `AnimeControl.position_to(Vector2)`
+- `AnimeControl.global_position_to(Vector2)`
 - `AnimeControl.size_to(Vector2)`
 - `AnimeControl.custom_minimum_size_to(Vector2)`
 - `AnimeControl.scale_to(Vector2)`

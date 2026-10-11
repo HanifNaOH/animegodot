@@ -403,13 +403,7 @@ func _camera_fit_distance(layout: StringName) -> float:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if _pick_element(event.position):
-			get_viewport().set_input_as_handled()
-	elif event is InputEventScreenTouch and event.pressed:
-		if _pick_element(event.position):
-			get_viewport().set_input_as_handled()
-	elif event is InputEventMouseMotion:
+	if event is InputEventMouseMotion:
 		if _orbit_dragging:
 			_orbit(event.relative)
 		else:
@@ -442,6 +436,14 @@ func _pick_element(screen_position: Vector2) -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if _pick_element(event.position):
+			get_viewport().set_input_as_handled()
+			return
+	elif event is InputEventScreenTouch and event.pressed:
+		if _pick_element(event.position):
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			_orbit_dragging = event.pressed
