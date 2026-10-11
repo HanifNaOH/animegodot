@@ -209,7 +209,7 @@ func _toggle_details(index: int) -> void:
 	_transitioning = false
 
 
-func _fade_in_detail(_layout: AnimeLayoutRuntime, detail: Label, transition_duration: float) -> void:
+func _fade_in_detail(_started_layout: AnimeLayoutRuntime, detail: Label, transition_duration: float) -> void:
 	var tween := Anime.tween(detail)
 	tween.options.duration = minf(0.18, transition_duration)
 	tween.options.ease = AnimeEase.OUT_CUBIC
